@@ -33,66 +33,13 @@ const CATEGORIES = {
 
 const PROJECTS = [
   {
-    id: "cad-render-workflow",
-    category: "footwear",
-    title: "CAD Render Workflows — GM: Alizon",
-    subtitle: "0.25pt Vector Tracing, 3D Inflate & Vizcom Composite",
-    specCode: "GM: Alizon",
-    tools: "Illustrator / Photoshop / Vizcom",
-    summary: "A 6-stage footwear illustration workflow transforming initial sketches into photorealistic renders while maintaining strict control over panel geometry, stitching, and design intent.",
-    thumb: "./assets/thumbnails/gm-alizon-thumb.webp",
-    boards: [
-      "./assets/projects/cad-workflow/slide-01-title.webp",
-      "./assets/projects/cad-workflow/slide-04-sketch.webp",
-      "./assets/projects/cad-workflow/slide-05-tracing.webp",
-      "./assets/projects/cad-workflow/slide-08-volume.webp",
-      "./assets/projects/cad-workflow/slide-13-vizcom.webp",
-      "./assets/projects/cad-workflow/slide-15-final-render.webp"
-    ]
-  },
-  {
-    id: "mff-cmf-trends-2026",
-    category: "footwear",
-    title: "Men's Footwear Trends 2026 (CMF)",
-    subtitle: "Sandal, Dress & Casual Sneaker Material Forecasting",
-    specCode: "MFF // CMF-26",
-    tools: "CMF Research / Spec Callouts",
-    summary: "Comprehensive material, hardware, and outsole color-material-finish analysis covering full-grain leathers, contoured cork, calf suede, and sculpted EVA soles.",
-    thumb: "./assets/thumbnails/mff-trends-thumb.webp",
-    boards: [
-      "./assets/projects/mff-trends/board-01-cover.webp",
-      "./assets/projects/mff-trends/board-02-sandals.webp",
-      "./assets/projects/mff-trends/board-03-dress.webp",
-      "./assets/projects/mff-trends/board-04-sneakers.webp"
-    ]
-  },
-  {
     id: "crcrr-connection",
     category: "industrial-design",
     title: "CRCRR Connection",
-    subtitle: "Service Design, UI/UX Architecture & User Journey Mapping",
-    specCode: "IDES 3302B",
-    tools: "Adobe XD / Illustrator / Systems",
-    summary: "A centralized digital extension and space-booking architecture designed to unlock dormant community center rooms through frictionless event discovery and native group messaging.",
-    thumb: "./assets/thumbnails/crcrr-thumb.webp",
-    boards: [
-      "./assets/projects/crcrr/board-01-dashboard.webp",
-      "./assets/projects/crcrr/board-02-research.webp",
-      "./assets/projects/crcrr/board-03-journey-map.webp"
-    ]
-  },
-  {
-    id: "modular-cookware-system",
-    category: "industrial-design",
-    title: "Stackable Modular Cookware System",
-    subtitle: "Physical Prototyping, Ergonomics & CAD Exploded Views",
-    specCode: "ID STUDIO",
-    tools: "SolidWorks / Model Making",
-    summary: "Multi-tiered cooking and steaming hardware designed for compact kitchens, featuring heat-resistant terracotta-accented handles and nesting geometry.",
-    thumb: "./assets/thumbnails/cookware-thumb.webp",
-    boards: [
-      "./assets/projects/cookware/board-01.webp"
-    ]
+    subtitle: "School project",
+    specCode: "SCHOOL PROJECT",
+    summary: "Project details and presentation materials will be added here.",
+    boards: []
   },
   ...[
     "IKUYO",
@@ -112,7 +59,7 @@ const PROJECTS = [
     isConcept: title === "Concepts (various concepts)",
     boards: []
   })),
-  ...["Hoode", "carletonlacrosse.com", "Carleton Lacrosse Helmet Decals", "Stick Rack"]
+  ...["Hoode", "carletonlacrosse.com", "Carleton Lacrosse Helmet Decals", "Lacrosse Stick Rack"]
     .map((title, index) => ({
       id: `personal-project-${index + 1}`,
       category: "personal",
@@ -133,13 +80,7 @@ const LACROSSE_EXPERIENCE = [
   "GCDS Varsity Lacrosse"
 ];
 
-const LACROSSE_GALLERY = [
-  {
-    src: "./assets/projects/lacrosse/board-01.webp",
-    alt: "Lacrosse rebounder project presentation board",
-    caption: "Lacrosse rebounder project"
-  }
-];
+const LACROSSE_GALLERY = [];
 
 const gridEl = document.getElementById("projectGrid");
 const homeEl = document.getElementById("homePage");

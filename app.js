@@ -33,12 +33,20 @@ const CATEGORIES = {
 
 const PROJECTS = [
   {
-    id: "crcrr-connection",
+    id: "rrcrc-connection",
     category: "industrial-design",
-    title: "CRCRR Connection",
+    title: "RRCRC Connection",
     subtitle: "School project",
     specCode: "SCHOOL PROJECT",
     summary: "Project details and presentation materials will be added here.",
+    video: {
+      src: "https://player.vimeo.com/video/1237430161?badge=0&autopause=0&player_id=0&app_id=58479",
+      title: "RRCRC Connection video"
+    },
+    demo: {
+      src: "https://xd.adobe.com/embed/d482f135-2f08-41e9-8c1a-e0bf56cad81f-81d1/?fullscreen&hints=off",
+      title: "RRCRC Connection Adobe XD live demo"
+    },
     boards: []
   },
   ...[
@@ -192,11 +200,24 @@ function openProject(project) {
     </div>` : ""}
   `;
 
-  modalBoards.innerHTML = project.boards.length ? project.boards.map((boardSrc, index) => `
+  const videoHtml = project.video ? `
+    <div class="project-video">
+      <iframe src="${project.video.src}" title="${project.video.title}" loading="lazy"
+        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>` : "";
+
+  const demoHtml = project.demo ? `
+    <div class="project-demo">
+      <iframe src="${project.demo.src}" title="${project.demo.title}" loading="lazy"
+        allow="fullscreen" allowfullscreen></iframe>
+    </div>` : "";
+
+  modalBoards.innerHTML = videoHtml + demoHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
     <figure class="presentation-board">
       <img src="${boardSrc}" alt="${project.title} - Board ${index + 1}" loading="lazy" decoding="async">
     </figure>
-  `).join("") : "";
+  `).join("") : "");
 
   modal.showModal();
   document.body.style.overflow = "hidden";

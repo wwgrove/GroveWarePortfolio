@@ -33,12 +33,16 @@ const CATEGORIES = {
 
 const PROJECTS = [
   {
-    id: "crcrr-connection",
+    id: "rrcrc-connection",
     category: "industrial-design",
-    title: "CRCRR Connection",
+    title: "RRCRC Connection",
     subtitle: "School project",
     specCode: "SCHOOL PROJECT",
     summary: "Project details and presentation materials will be added here.",
+    video: {
+      src: "https://player.vimeo.com/video/1237430161?badge=0&autopause=0&player_id=0&app_id=58479",
+      title: "RRCRC Connection video"
+    },
     boards: []
   },
   ...[
@@ -192,11 +196,18 @@ function openProject(project) {
     </div>` : ""}
   `;
 
-  modalBoards.innerHTML = project.boards.length ? project.boards.map((boardSrc, index) => `
+  const videoHtml = project.video ? `
+    <div class="project-video">
+      <iframe src="${project.video.src}" title="${project.video.title}" loading="lazy"
+        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>` : "";
+
+  modalBoards.innerHTML = videoHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
     <figure class="presentation-board">
       <img src="${boardSrc}" alt="${project.title} - Board ${index + 1}" loading="lazy" decoding="async">
     </figure>
-  `).join("") : "";
+  `).join("") : "");
 
   modal.showModal();
   document.body.style.overflow = "hidden";

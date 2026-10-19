@@ -43,6 +43,10 @@ const PROJECTS = [
       src: "https://player.vimeo.com/video/1237430161?badge=0&autopause=0&player_id=0&app_id=58479",
       title: "RRCRC Connection video"
     },
+    demo: {
+      src: "https://xd.adobe.com/embed/d482f135-2f08-41e9-8c1a-e0bf56cad81f-81d1/?fullscreen&hints=off",
+      title: "RRCRC Connection Adobe XD live demo"
+    },
     boards: []
   },
   ...[
@@ -203,7 +207,13 @@ function openProject(project) {
         referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </div>` : "";
 
-  modalBoards.innerHTML = videoHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
+  const demoHtml = project.demo ? `
+    <div class="project-demo">
+      <iframe src="${project.demo.src}" title="${project.demo.title}" loading="lazy"
+        allow="fullscreen" allowfullscreen></iframe>
+    </div>` : "";
+
+  modalBoards.innerHTML = videoHtml + demoHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
     <figure class="presentation-board">
       <img src="${boardSrc}" alt="${project.title} - Board ${index + 1}" loading="lazy" decoding="async">
     </figure>

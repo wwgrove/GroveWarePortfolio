@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Will Wingrove — Industrial Design & Footwear CAD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="studio-header">
+    <div class="header-inner">
+      <a href="#footwear" class="brand-signature">Will Wingrove</a>
+      <nav class="studio-nav" aria-label="Portfolio Categories">
+        <button class="nav-tab active" data-page="footwear">Footwear</button>
+        <button class="nav-tab" data-page="industrial-design">School Projects</button>
+        <button class="nav-tab" data-page="personal">Personal</button>
+        <button class="nav-tab" data-page="lacrosse">Lacrosse</button>
+        <button class="nav-tab" data-page="about">About & Contact</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="studio-workspace">
+    <section id="categoryBanner" class="editorial-banner">
+      <div class="banner-left">
+        <span id="pageStepTag" class="step-badge">01 // Footwear Portfolio</span>
+        <h1 id="pageTitle">Footwear CAD & Trend Spec</h1>
+      </div>
+      <p id="pageDescription" class="banner-right">
+        High-fidelity vector CAD illustrations, 3D volume inflation, CMF trend forecasting, and AI-assisted photorealistic rendering workflows.
+      </p>
+    </section>
+
+    <section id="projectGrid" class="artboard-grid" aria-live="polite"></section>
+
+    <section id="aboutPage" class="about-layout hidden" aria-live="polite">
+      <div class="about-artboard">
+        <div class="about-column-left">
+          <span class="step-badge">05 // Designer Profile</span>
+          <h2>About Me</h2>
+          <div class="qa-block">
+            <h3>Who I am:</h3>
+            <p>An industrial designer specializing in high-fidelity digital illustration, footwear spec, and CAD renderings.</p>
+          </div>
+          <div class="qa-block">
+            <h3>Where I go to school:</h3>
+            <p>Carleton University, School of Industrial Design.</p>
+          </div>
+          <div class="qa-block">
+            <h3>What I do here:</h3>
+            <p>I transform rough concepts and sketches into highly detailed, polished product renders and physical prototypes—maintaining full control of design intent from 0.25pt vector linework to final output.</p>
+          </div>
+          <div class="qa-block">
+            <h3>My Tools of Choice:</h3>
+            <p>Adobe Illustrator, Adobe Photoshop, SolidWorks, Adobe XD, Vizcom, & Bambu Studio (FDM).</p>
+          </div>
+          <div class="contact-row">
+            <a href="mailto:hello@willwingrove.com" class="tactile-btn primary">Email Me Directly</a>
+            <a href="./assets/about/resume.pdf" target="_blank" class="tactile-btn">Download Resume (PDF)</a>
+          </div>
+        </div>
+        <div class="about-column-right">
+          <div class="portrait-frame">
+            <span class="corner-tag top-left">Will Wingrove</span>
+            <img src="./assets/about/studio-portrait.webp" alt="Will Wingrove with industrial design prototypes" class="portrait-img" loading="lazy" decoding="async">
+            <span class="corner-tag bottom-right">Carleton ID</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="projectModal" class="project-drawer" aria-labelledby="modalTitle">
+    <header class="drawer-bar">
+      <div class="drawer-titles">
+        <span id="modalCategory" class="step-badge">Footwear</span>
+        <h2 id="modalTitle">Project Title</h2>
+      </div>
+      <button id="closeModalBtn" class="tactile-close" aria-label="Close Project">
+        Close <span>✕</span>
+      </button>
+    </header>
+    <div class="drawer-scroll-container">
+      <div id="modalIntro" class="drawer-intro"></div>
+      <div id="modalBoards" class="boards-stack"></div>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

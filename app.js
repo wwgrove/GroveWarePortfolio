@@ -1,4 +1,9 @@
 const CATEGORIES = {
+  "home": {
+    step: "Home",
+    title: "Home",
+    desc: ""
+  },
   "footwear": {
     step: "01 // Footwear Portfolio",
     title: "Footwear CAD & Trend Spec",
@@ -137,6 +142,7 @@ const LACROSSE_GALLERY = [
 ];
 
 const gridEl = document.getElementById("projectGrid");
+const homeEl = document.getElementById("homePage");
 const aboutEl = document.getElementById("aboutPage");
 const lacrosseEl = document.getElementById("lacrossePage");
 const schoolProjectTabs = document.getElementById("schoolProjectTabs");
@@ -164,14 +170,16 @@ let galleryTouchStartX = null;
 let activeSchoolFilter = "projects";
 
 function renderPage(pageKey) {
-  const activeKey = CATEGORIES[pageKey] ? pageKey : "footwear";
+  const activeKey = CATEGORIES[pageKey] ? pageKey : "home";
   const meta = CATEGORIES[activeKey];
 
   navTabs.forEach(tab => {
     tab.classList.toggle("active", tab.dataset.page === activeKey);
   });
 
-  if (activeKey === "about" || activeKey === "lacrosse") {
+  homeEl.classList.toggle("hidden", activeKey !== "home");
+
+  if (activeKey === "home" || activeKey === "about" || activeKey === "lacrosse") {
     schoolProjectTabs.classList.add("hidden");
     bannerEl.classList.add("hidden");
     gridEl.classList.add("hidden");
@@ -319,7 +327,7 @@ schoolProjectTabs.querySelectorAll(".school-project-tab").forEach(tab => {
 });
 
 window.addEventListener("hashchange", () => {
-  const hash = window.location.hash.replace("#", "") || "footwear";
+  const hash = window.location.hash.replace("#", "") || "home";
   renderPage(hash);
 });
 
@@ -352,5 +360,5 @@ galleryModal.addEventListener("keydown", event => {
   if (event.key === "ArrowRight") moveGalleryImage(1);
 });
 
-const startHash = window.location.hash.replace("#", "") || "footwear";
+const startHash = window.location.hash.replace("#", "") || "home";
 renderPage(startHash);

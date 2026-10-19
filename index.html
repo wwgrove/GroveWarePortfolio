@@ -13,9 +13,10 @@
 
   <header class="studio-header">
     <div class="header-inner">
-      <a href="#footwear" class="brand-signature">Will Wingrove</a>
+      <a href="#home" class="brand-signature">Will Wingrove</a>
       <nav class="studio-nav" aria-label="Portfolio Categories">
-        <button class="nav-tab active" data-page="footwear">Footwear</button>
+        <button class="nav-tab active" data-page="home">Home</button>
+        <button class="nav-tab" data-page="footwear">Footwear</button>
         <button class="nav-tab" data-page="industrial-design">School Projects</button>
         <button class="nav-tab" data-page="personal">Personal</button>
         <button class="nav-tab" data-page="lacrosse">Lacrosse</button>
@@ -25,7 +26,46 @@
   </header>
 
   <main class="studio-workspace">
-    <section id="categoryBanner" class="editorial-banner">
+    <section id="homePage" class="home-layout" aria-live="polite">
+      <div class="home-hero">
+        <div class="home-hero-text">
+          <span class="step-badge">Industrial Design &amp; Footwear CAD</span>
+          <h1>Will Wingrove</h1>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+          <div class="contact-row">
+            <a href="#footwear" class="tactile-btn primary">View Work</a>
+            <a href="#about" class="tactile-btn">About &amp; Contact</a>
+          </div>
+        </div>
+        <div class="home-hero-image">
+          <img src="./assets/about/studio-portrait.webp" alt="Will Wingrove with industrial design prototypes" decoding="async">
+        </div>
+      </div>
+      <div class="home-cards">
+        <a class="home-card" href="#footwear">
+          <img src="./assets/thumbnails/gm-alizon-thumb.webp" alt="Footwear preview" loading="lazy" decoding="async">
+          <div class="home-card-text"><h3>Footwear</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div>
+        </a>
+        <a class="home-card" href="#industrial-design">
+          <img src="./assets/thumbnails/crcrr-thumb.webp" alt="School Projects preview" loading="lazy" decoding="async">
+          <div class="home-card-text"><h3>School Projects</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div>
+        </a>
+        <a class="home-card" href="#personal">
+          <img src="./assets/thumbnails/personal-thumb.webp" alt="Personal preview" loading="lazy" decoding="async">
+          <div class="home-card-text"><h3>Personal</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div>
+        </a>
+        <a class="home-card" href="#lacrosse">
+          <img src="./assets/thumbnails/lacrosse-thumb.webp" alt="Lacrosse preview" loading="lazy" decoding="async">
+          <div class="home-card-text"><h3>Lacrosse</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div>
+        </a>
+      </div>
+      <div class="home-overview">
+        <h2>Who I am</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+      </div>
+    </section>
+
+    <section id="categoryBanner" class="editorial-banner hidden">
       <div class="banner-left">
         <span id="pageStepTag" class="step-badge">01 // Footwear Portfolio</span>
         <h1 id="pageTitle">Footwear CAD & Trend Spec</h1>

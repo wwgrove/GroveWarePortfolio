@@ -37,6 +37,23 @@
 
     <section id="projectGrid" class="artboard-grid" aria-live="polite"></section>
 
+    <section id="lacrossePage" class="lacrosse-layout hidden" aria-live="polite">
+      <div class="lacrosse-intro">
+        <span class="step-badge">04 // Lacrosse Profile</span>
+        <h2>Lacrosse, coaching &amp; community</h2>
+        <p>My experience in lacrosse spans coaching, team environments, and the wider lacrosse community.</p>
+      </div>
+      <section class="experience-section" aria-labelledby="experienceTitle">
+        <h2 id="experienceTitle">Coaching &amp; Lacrosse Experience</h2>
+        <ul id="lacrosseExperience" class="experience-list"></ul>
+      </section>
+      <section class="experience-section" aria-labelledby="galleryTitle">
+        <h2 id="galleryTitle">Lacrosse Gallery</h2>
+        <p class="gallery-description">A collection of lacrosse sticks, equipment, and related work.</p>
+        <div id="lacrosseGallery" class="lacrosse-gallery"></div>
+      </section>
+    </section>
+
     <section id="aboutPage" class="about-layout hidden" aria-live="polite">
       <div class="about-artboard">
         <div class="about-column-left">
@@ -87,6 +104,18 @@
     <div class="drawer-scroll-container">
       <div id="modalIntro" class="drawer-intro"></div>
       <div id="modalBoards" class="boards-stack"></div>
+    </div>
+  </dialog>
+
+  <dialog id="galleryModal" class="gallery-modal" aria-label="Lacrosse photo gallery">
+    <div class="gallery-modal-bar">
+      <p id="galleryCaption" aria-live="polite"></p>
+      <button id="closeGalleryBtn" class="tactile-close" aria-label="Close gallery">Close <span>✕</span></button>
+    </div>
+    <div class="gallery-viewer">
+      <button id="previousGalleryImage" class="gallery-control" aria-label="Previous photo">‹</button>
+      <img id="galleryImage" alt="">
+      <button id="nextGalleryImage" class="gallery-control" aria-label="Next photo">›</button>
     </div>
   </dialog>
 

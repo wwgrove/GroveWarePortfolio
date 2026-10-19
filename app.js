@@ -64,7 +64,7 @@ const PROJECTS = [
   {
     id: "crcrr-connection",
     category: "industrial-design",
-    title: "RRCRC Connection",
+    title: "CRCRR Connection",
     subtitle: "Service Design, UI/UX Architecture & User Journey Mapping",
     specCode: "IDES 3302B",
     tools: "Adobe XD / Illustrator / Systems",
@@ -95,8 +95,8 @@ const PROJECTS = [
     "JoAnne",
     "Armor-Core",
     "Keystone",
-    "Worm",
-    "General Concepts"
+    "Worm at the Disco",
+    "Concepts (various concepts)"
   ].map((title, index) => ({
     id: `school-project-${index + 1}`,
     category: "industrial-design",
@@ -104,10 +104,10 @@ const PROJECTS = [
     subtitle: "School project",
     specCode: "SCHOOL PROJECT",
     summary: "Project details and presentation materials will be added here.",
-    isConcept: title === "General Concepts",
+    isConcept: title === "Concepts (various concepts)",
     boards: []
   })),
-  ...["Hoode", "carletonlacrosse.com", "Ravens Helmet Decals", "Custom Lacrosse Stick Rack"]
+  ...["Hoode", "carletonlacrosse.com", "Carleton Lacrosse Helmet Decals", "Stick Rack"]
     .map((title, index) => ({
       id: `personal-project-${index + 1}`,
       category: "personal",

@@ -47,7 +47,7 @@ const PROJECTS = [
       src: "https://xd.adobe.com/embed/d482f135-2f08-41e9-8c1a-e0bf56cad81f-81d1/?fullscreen&hints=off",
       title: "RRCRC Connection Adobe XD live demo"
     },
-    boards: []
+    boards: ["assets/School/RRCRC Connection/rrcrc-board-1.webp"]
   },
   ...[
     "IKUYO",
@@ -200,20 +200,13 @@ function openProject(project) {
     </div>` : ""}
   `;
 
-  const videoHtml = project.video ? `
-    <div class="project-video">
-      <iframe src="${project.video.src}" title="${project.video.title}" loading="lazy"
-        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-    </div>` : "";
-
   const demoHtml = project.demo ? `
     <div class="project-demo">
       <iframe src="${project.demo.src}" title="${project.demo.title}" loading="lazy"
         allow="fullscreen" allowfullscreen></iframe>
     </div>` : "";
 
-  modalBoards.innerHTML = videoHtml + demoHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
+  modalBoards.innerHTML = demoHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
     <figure class="presentation-board">
       <img src="${boardSrc}" alt="${project.title} - Board ${index + 1}" loading="lazy" decoding="async">
     </figure>
@@ -221,13 +214,91 @@ function openProject(project) {
 
   modal.showModal();
   document.body.style.overflow = "hidden";
+  modal.scrollTop = 0;
+  openFloatingVideo(project.video);
 }
 
 function closeProject() {
+  closeFloatingVideo();
   modal.close();
   modalBoards.innerHTML = "";
   document.body.style.overflow = "";
 }
+
+const FLOAT_MARGIN = 16;
+const floatEl = document.getElementById("floatingVideo");
+const floatFrame = document.getElementById("floatingVideoFrame");
+const floatHandle = document.getElementById("floatingVideoHandle");
+let floatCorner = "bottom-left";
+let floatDrag = null;
+
+function floatBounds() {
+  const width = floatEl.offsetWidth;
+  const height = floatEl.offsetHeight;
+  const bar = modal.querySelector(".drawer-bar").getBoundingClientRect();
+  const intro = modalIntro.getBoundingClientRect();
+  const minTop = Math.max(bar.bottom, intro.bottom) + FLOAT_MARGIN;
+  return {
+    width, height, minTop,
+    maxTop: Math.max(minTop, window.innerHeight - height - FLOAT_MARGIN),
+    maxLeft: Math.max(FLOAT_MARGIN, window.innerWidth - width - FLOAT_MARGIN)
+  };
+}
+
+function snapFloatingVideo() {
+  const b = floatBounds();
+  const [v, h] = floatCorner.split("-");
+  floatEl.style.top = `${v === "top" ? b.minTop : b.maxTop}px`;
+  floatEl.style.left = `${h === "left" ? FLOAT_MARGIN : b.maxLeft}px`;
+}
+
+function openFloatingVideo(video) {
+  if (!video) return closeFloatingVideo();
+  floatFrame.innerHTML = `<iframe src="${video.src}" title="${video.title}" loading="lazy"
+    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+  floatCorner = "bottom-left";
+  floatEl.hidden = false;
+  snapFloatingVideo();
+}
+
+function closeFloatingVideo() {
+  floatEl.hidden = true;
+  floatFrame.innerHTML = "";
+}
+
+floatHandle.addEventListener("pointerdown", event => {
+  if (event.target.closest("button")) return;
+  const rect = floatEl.getBoundingClientRect();
+  floatDrag = { dx: event.clientX - rect.left, dy: event.clientY - rect.top };
+  floatHandle.setPointerCapture(event.pointerId);
+  floatEl.classList.add("dragging");
+});
+
+floatHandle.addEventListener("pointermove", event => {
+  if (!floatDrag) return;
+  const b = floatBounds();
+  const left = Math.min(Math.max(event.clientX - floatDrag.dx, FLOAT_MARGIN), b.maxLeft);
+  const top = Math.min(Math.max(event.clientY - floatDrag.dy, b.minTop), b.maxTop);
+  floatEl.style.left = `${left}px`;
+  floatEl.style.top = `${top}px`;
+});
+
+function endFloatDrag(event) {
+  if (!floatDrag) return;
+  floatDrag = null;
+  floatEl.classList.remove("dragging");
+  if (event && floatHandle.hasPointerCapture(event.pointerId)) floatHandle.releasePointerCapture(event.pointerId);
+  const rect = floatEl.getBoundingClientRect();
+  floatCorner = `${rect.top + rect.height / 2 < window.innerHeight / 2 ? "top" : "bottom"}-${rect.left + rect.width / 2 < window.innerWidth / 2 ? "left" : "right"}`;
+  snapFloatingVideo();
+}
+
+floatHandle.addEventListener("pointerup", endFloatDrag);
+floatHandle.addEventListener("pointercancel", endFloatDrag);
+document.getElementById("closeFloatingVideo").addEventListener("click", closeFloatingVideo);
+modal.addEventListener("scroll", () => { if (!floatEl.hidden && !floatDrag) snapFloatingVideo(); }, { passive: true });
+window.addEventListener("resize", () => { if (!floatEl.hidden && !floatDrag) snapFloatingVideo(); });
 
 function renderLacrossePage() {
   lacrosseExperience.innerHTML = LACROSSE_EXPERIENCE.map(place => `<li>${place}</li>`).join("");

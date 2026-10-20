@@ -640,14 +640,45 @@ body {
   .home-layout { gap: 1.75rem; }
 }
 
-.project-video {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  background: #000;
+.floating-video {
+  position: fixed;
+  z-index: 30;
+  width: min(320px, 70vw);
+  background: var(--artboard-white);
+  border: 1px solid var(--border-line);
+  border-radius: 8px;
+  padding: 0.4rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  transition: top 0.35s var(--spring-ease), left 0.35s var(--spring-ease);
 }
 
-.project-video iframe {
+.floating-video[hidden] { display: none; }
+.floating-video.dragging { transition: none; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28); }
+.floating-video.dragging iframe { pointer-events: none; }
+
+.floating-video-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 0.4rem;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.floating-video.dragging .floating-video-bar { cursor: grabbing; }
+.floating-video-bar .step-badge { margin: 0; }
+.floating-video-bar .tactile-close { padding: 0.15rem 0.55rem; font-size: 0.8rem; }
+
+.floating-video-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.floating-video-frame iframe {
   position: absolute;
   inset: 0;
   width: 100%;

@@ -65,14 +65,11 @@ const PROJECTS = [
       "Ikuyo is a compact, large-capacity stovetop steamer for beginner cooks. It collapses into a single nested unit for easy storage and expands into multi-tiered baskets for steaming a full meal. Co-moulded gaskets prevent steam leakage and temperature fluctuation, heat-safe silicone grips reduce the risk of burns, and smooth interior surfaces make cleanup fast."
     ],
     tools: "PCTG co-polyester baskets, 304 stainless steel pot and lid ring, tempered borosilicate glass lid, food-grade silicone grips and gaskets",
-    boards: [],
+    boards: Array.from({ length: 8 }, (_, i) => `assets/School/IKUYO/ikuyo-board-${i + 1}.webp`),
+    documents: [
+      { label: "Presentation Boards (PDF)", src: "assets/School/IKUYO/IKUYOFINALBOARDS.pdf" }
+    ],
     books: [
-      {
-        label: "Presentation Boards",
-        aspect: "1224 / 792",
-        pdf: "assets/School/IKUYO/IKUYOFINALBOARDS.pdf",
-        pages: Array.from({ length: 8 }, (_, i) => `assets/School/IKUYO/ikuyo-board-${i + 1}.webp`)
-      },
       {
         label: "Process Booklet",
         aspect: "612 / 396",
@@ -279,11 +276,11 @@ function openProject(project) {
       ${project.documents.map(doc => `<a class="doc-link" href="${encodeURI(doc.src)}" target="_blank" rel="noopener">${doc.label}</a>`).join("")}
     </div>` : "";
 
-  modalBoards.innerHTML = demoHtml + docsHtml + (project.books || []).map((_, i) => `<div data-book="${i}"></div>`).join("") + (project.boards.length ? project.boards.map((boardSrc, index) => `
+  modalBoards.innerHTML = demoHtml + docsHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
     <figure class="presentation-board">
       <img src="${boardSrc}" alt="${project.title} - Board ${index + 1}" loading="lazy" decoding="async">
     </figure>
-  `).join("") : "");
+  `).join("") : "") + (project.books || []).map((_, i) => `<div data-book="${i}"></div>`).join("");
 
   (project.books || []).forEach((book, i) => createFlipbook(modalBoards.querySelector(`[data-book="${i}"]`), book, project.title));
 

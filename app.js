@@ -36,8 +36,9 @@ const PROJECTS = [
     id: "rrcrc-connection",
     category: "industrial-design",
     title: "RRCRC Connection",
-    subtitle: "School project",
+    subtitle: "IDES3302B Projects IIB (STU) Winter 2026",
     specCode: "SCHOOL PROJECT",
+    thumb: "assets/School/RRCRC Connection/ThumbnailPictureRRCRC.png",
     summary: "Project details and presentation materials will be added here.",
     video: {
       src: "https://player.vimeo.com/video/1237430161?badge=0&autopause=0&player_id=0&app_id=58479",
@@ -201,6 +202,7 @@ function openProject(project) {
   `;
 
   const demoHtml = project.demo ? `
+    <div class="demo-label"><span class="demo-badge">Live Demo</span> Interactive prototype: hover over the window and click through it to explore.</div>
     <div class="project-demo">
       <iframe src="${project.demo.src}" title="${project.demo.title}" loading="lazy"
         allow="fullscreen" allowfullscreen></iframe>

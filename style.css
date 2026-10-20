@@ -647,13 +647,26 @@ body {
   background: var(--artboard-white);
   border: 1px solid var(--border-line);
   border-radius: 8px;
-  padding: 0.4rem;
+  padding: 0.4rem 0.4rem 1rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
   transition: top 0.35s var(--spring-ease), left 0.35s var(--spring-ease);
 }
 
 .floating-video[hidden] { display: none; }
 .floating-video.dragging { transition: none; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28); }
+.floating-video.resizing { transition: none; }
+.floating-video.resizing iframe { pointer-events: none; }
+.floating-video-resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 22px;
+  height: 22px;
+  cursor: nwse-resize;
+  touch-action: none;
+  background: linear-gradient(135deg, transparent 50%, var(--border-line) 50%, var(--border-line) 58%, transparent 58%, transparent 72%, var(--border-line) 72%, var(--border-line) 80%, transparent 80%);
+  border-bottom-right-radius: 8px;
+}
 .floating-video.dragging iframe { pointer-events: none; }
 
 .floating-video-bar {

@@ -302,7 +302,6 @@ function endFloatDrag(event) {
 
 floatHandle.addEventListener("pointerup", endFloatDrag);
 floatHandle.addEventListener("pointercancel", endFloatDrag);
-const floatResize = document.getElementById("floatingVideoResize");
 let floatSize = null;
 
 floatEl.querySelectorAll("[data-resize]").forEach(handle => handle.addEventListener("pointerdown", event => {

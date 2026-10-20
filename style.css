@@ -747,6 +747,10 @@ body {
 }
 .resize-e { right: -5px; }
 .resize-w { left: -5px; }
+.resize-e::after, .resize-w::after {
+  width: 3px;
+  height: 24px;
+}
 .resize-ne, .resize-se, .resize-sw, .resize-nw {
   width: 20px;
   height: 20px;
@@ -785,6 +789,7 @@ body {
 .floating-video.dragging .floating-video-bar { cursor: grabbing; }
 .floating-video-bar .step-badge { margin: 0; }
 .floating-video-bar .tactile-close { padding: 0.15rem 0.55rem; font-size: 0.8rem; }
+.floating-video-bar .tactile-close { position: relative; z-index: 3; }
 
 .floating-video-frame {
   position: relative;

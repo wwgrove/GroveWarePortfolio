@@ -908,7 +908,10 @@ body {
 }
 
 .demo-badge {
-  background: var(--ink-charcoal);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #c62828;
   color: var(--artboard-white);
   font-weight: 700;
   font-size: 0.75rem;
@@ -916,7 +919,18 @@ body {
   text-transform: uppercase;
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
-  animation: demo-pulse 2s ease-in-out infinite;
+  animation: demo-pulse 1.8s ease-in-out infinite;
+}
+
+.demo-badge::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.65);
+  animation: demo-live-dot 1.8s ease-out infinite;
 }
 
 .project-demo {
@@ -930,12 +944,18 @@ body {
 }
 
 @keyframes demo-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.55; }
+  0%, 100% { background-color: #c62828; box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.2); }
+  50% { background-color: #e53935; box-shadow: 0 0 0 4px rgba(198, 40, 40, 0.16); }
+}
+
+@keyframes demo-live-dot {
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.65); }
+  70%, 100% { box-shadow: 0 0 0 5px rgba(255, 255, 255, 0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .demo-badge { animation: none; }
+  .demo-badge,
+  .demo-badge::before { animation: none; }
   .project-demo { transition: none; }
   .project-demo:hover { transform: none; }
 }

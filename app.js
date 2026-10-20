@@ -249,10 +249,11 @@ function floatBounds() {
   const height = floatEl.offsetHeight;
   const bar = modal.querySelector(".drawer-bar").getBoundingClientRect();
   const intro = modalIntro.getBoundingClientRect();
-  const minTop = Math.max(bar.bottom, intro.bottom) + FLOAT_MARGIN;
+  const maxTop = Math.max(FLOAT_MARGIN, window.innerHeight - height - FLOAT_MARGIN);
+  const minTop = Math.min(Math.max(bar.bottom, intro.bottom) + FLOAT_MARGIN, maxTop);
   return {
     width, height, minTop,
-    maxTop: Math.max(minTop, window.innerHeight - height - FLOAT_MARGIN),
+    maxTop,
     maxLeft: Math.max(FLOAT_MARGIN, window.innerWidth - width - FLOAT_MARGIN)
   };
 }

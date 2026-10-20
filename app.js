@@ -272,6 +272,7 @@ function openFloatingVideo(video) {
     referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
   floatCorner = "bottom-left";
   floatEl.style.width = "";
+  floatEl.style.height = "";
   floatEl.hidden = false;
   snapFloatingVideo();
 }

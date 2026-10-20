@@ -959,3 +959,72 @@ body {
   .project-demo { transition: none; }
   .project-demo:hover { transform: none; }
 }
+
+.project-documents { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 16px; }
+.doc-link, .project-documents a {
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid currentColor;
+  padding: 0.5rem 0.8rem;
+}
+.doc-link:hover, .project-documents a:hover { background: #111; color: #fff; }
+
+.flipbook { margin: 0 0 1.75rem; }
+.flipbook-head, .flipbook-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 0.75rem; }
+.flipbook-foot { margin: 0.75rem 0 0; justify-content: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+.flipbook-stage {
+  position: relative;
+  width: 100%;
+  background: var(--artboard-white);
+  border: 1px solid var(--border-line);
+  border-radius: 8px;
+  overflow: hidden;
+  perspective: 1800px;
+  touch-action: pan-y;
+  outline-offset: 3px;
+}
+.flip-page { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; user-select: none; -webkit-user-drag: none; }
+.flip-leaf {
+  transform-origin: left center;
+  backface-visibility: hidden;
+  background: var(--artboard-white);
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+.flip-leaf[hidden] { display: none; }
+.turn-forward { animation: page-forward 0.7s cubic-bezier(0.45, 0.05, 0.25, 1) forwards; }
+.turn-back { animation: page-back 0.7s cubic-bezier(0.45, 0.05, 0.25, 1) forwards; }
+@keyframes page-forward {
+  0% { transform: rotateY(0); opacity: 1; filter: brightness(1); }
+  60% { opacity: 1; }
+  100% { transform: rotateY(-95deg); opacity: 0; filter: brightness(0.7); }
+}
+@keyframes page-back {
+  0% { transform: rotateY(-95deg); opacity: 0; filter: brightness(0.7); }
+  40% { opacity: 1; }
+  100% { transform: rotateY(0); opacity: 1; filter: brightness(1); }
+}
+.flip-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--border-line);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink-charcoal);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+.flip-prev { left: 0.6rem; }
+.flip-next { right: 0.6rem; }
+.flip-nav:disabled { opacity: 0.25; cursor: default; }
+.flip-nav:not(:disabled):hover { background: #111; color: #fff; }
+@media (prefers-reduced-motion: reduce) { .turn-forward, .turn-back { animation: none; } }

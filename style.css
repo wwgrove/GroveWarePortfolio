@@ -959,3 +959,16 @@ body {
   .project-demo { transition: none; }
   .project-demo:hover { transform: none; }
 }
+
+.project-documents { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 16px; }
+.project-documents .doc-link, .project-documents a {
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid currentColor;
+  padding: 0.5rem 0.8rem;
+}
+.project-documents a:hover { background: #111; color: #fff; }

@@ -53,11 +53,44 @@ const PROJECTS = [
     },
     boards: ["assets/School/RRCRC Connection/rrcrc-board-1.webp"]
   },
+  {
+    id: "ikuyo",
+    category: "industrial-design",
+    title: "Ikuyo",
+    subtitle: "Compact stovetop steamer",
+    specCode: "SCHOOL PROJECT",
+    thumb: "assets/School/IKUYO/ikuyo-board-1.webp",
+    summary: [
+      "New cooks in small kitchens often feel intimidated by hot cookware, steam, and multi-step setups. Cramped drawers limit what can be stored, and many steaming products leak steam, heat up unpredictably, and are awkward to handle, which leads to hesitation and unsafe habits.",
+      "Ikuyo is a compact, large-capacity stovetop steamer for beginner cooks. It collapses into a single nested unit for easy storage and expands into multi-tiered baskets for steaming a full meal. Co-moulded gaskets prevent steam leakage and temperature fluctuation, heat-safe silicone grips reduce the risk of burns, and smooth interior surfaces make cleanup fast."
+    ],
+    tools: "PCTG co-polyester baskets, 304 stainless steel pot and lid ring, tempered borosilicate glass lid, food-grade silicone grips and gaskets",
+    boards: Array.from({ length: 8 }, (_, i) => `assets/School/IKUYO/ikuyo-board-${i + 1}.webp`),
+    documents: [
+      { label: "Process Book (PDF)", src: "assets/School/IKUYO/IKUYOPROCESSBOOKFINAL - Reduced.pdf" },
+      { label: "Final Boards (PDF)", src: "assets/School/IKUYO/IKUYOFINALBOARDS.pdf" }
+    ]
+  },
+  {
+    id: "armor-core",
+    category: "industrial-design",
+    title: "Armor-Core",
+    subtitle: "Zippo ArmorCore tactical helmet",
+    specCode: "SCHOOL PROJECT",
+    thumb: "assets/School/Armor-Core/armor-core-board-1.webp",
+    summary: [
+      "ArmorCore extends the Zippo brand into a tactical helmet. The design carries the timeless, strong-edged look of the original windproof lighter, and the ear ventilation holes echo the signature holes found throughout Zippo products.",
+      "The form was developed through sketching, CAD surfacing with section views, and a final clay model. The helmet is finished with the Zippo mark of authenticity as a stamped detail, reflecting the lifetime guarantee."
+    ],
+    tools: "UHMWPE panel shell, memory EVA foam pads, adjustable strap and chin cup, clay modelling",
+    boards: Array.from({ length: 5 }, (_, i) => `assets/School/Armor-Core/armor-core-board-${i + 1}.webp`),
+    documents: [
+      { label: "Final Boards (PDF)", src: "assets/School/Armor-Core/Zippo Helmet Boards - Reduced.pdf" }
+    ]
+  },
   ...[
-    "IKUYO",
     "Torus",
     "JoAnne",
-    "Armor-Core",
     "Keystone",
     "Worm at the Disco",
     "Concepts (various concepts)"
@@ -71,9 +104,22 @@ const PROJECTS = [
     isConcept: title === "Concepts (various concepts)",
     boards: []
   })),
-  ...["Hoode", "carletonlacrosse.com", "Carleton Lacrosse Helmet Decals", "Lacrosse Stick Rack"]
+  {
+    id: "hoode",
+    category: "personal",
+    title: "Hoode",
+    subtitle: "Jointed fishing lure concept",
+    specCode: "PERSONAL PROJECT",
+    thumb: "assets/Personal/Hoode/hoode-board-1.webp",
+    summary: [
+      "Hoode is a self-directed jointed swimbait concept for bass fishing. Two articulated body sections let the lure swim with a lifelike side-to-side action, and the hardware is arranged to keep the hooks clear of the body.",
+      "The concept was modelled in CAD and rendered in context, shown here alongside a largemouth bass in its habitat."
+    ],
+    boards: Array.from({ length: 4 }, (_, i) => `assets/Personal/Hoode/hoode-board-${i + 1}.webp`)
+  },
+  ...["carletonlacrosse.com", "Carleton Lacrosse Helmet Decals", "Lacrosse Stick Rack"]
     .map((title, index) => ({
-      id: `personal-project-${index + 1}`,
+      id: `personal-project-${index + 2}`,
       category: "personal",
       title,
       subtitle: "Personal project",
@@ -218,7 +264,12 @@ function openProject(project) {
       </div>
     </div>` : "";
 
-  modalBoards.innerHTML = demoHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
+  const docsHtml = project.documents ? `
+    <div class="project-documents">
+      ${project.documents.map(doc => `<a class="doc-link" href="${encodeURI(doc.src)}" target="_blank" rel="noopener">${doc.label}</a>`).join("")}
+    </div>` : "";
+
+  modalBoards.innerHTML = demoHtml + docsHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
     <figure class="presentation-board">
       <img src="${boardSrc}" alt="${project.title} - Board ${index + 1}" loading="lazy" decoding="async">
     </figure>

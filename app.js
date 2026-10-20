@@ -207,8 +207,15 @@ function openProject(project) {
   const demoHtml = project.demo ? `
     <div class="demo-label"><span class="demo-badge">Live Demo</span> Interactive prototype: hover over the window and click through it to explore.</div>
     <div class="project-demo">
-      <iframe src="${project.demo.src}" title="${project.demo.title}" loading="lazy"
-        allow="fullscreen" allowfullscreen></iframe>
+      <div class="demo-browser-chrome" aria-hidden="true">
+        <div class="demo-window-controls"><span></span><span></span><span></span></div>
+        <div class="demo-address-bar"><span class="demo-address-icon">⌕</span><span>Search Google or type a URL</span></div>
+        <span class="demo-browser-menu">⋮</span>
+      </div>
+      <div class="project-demo-viewport">
+        <iframe src="${project.demo.src}" title="${project.demo.title}" loading="lazy"
+          allow="fullscreen" allowfullscreen></iframe>
+      </div>
     </div>` : "";
 
   modalBoards.innerHTML = demoHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `

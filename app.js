@@ -258,6 +258,7 @@ function openFloatingVideo(video) {
     allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
     referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
   floatCorner = "bottom-left";
+  floatEl.style.width = "";
   floatEl.hidden = false;
   snapFloatingVideo();
 }
@@ -296,9 +297,39 @@ function endFloatDrag(event) {
 
 floatHandle.addEventListener("pointerup", endFloatDrag);
 floatHandle.addEventListener("pointercancel", endFloatDrag);
+const floatResize = document.getElementById("floatingVideoResize");
+let floatSize = null;
+
+floatResize.addEventListener("pointerdown", event => {
+  event.preventDefault();
+  floatSize = { x: event.clientX, w: floatEl.offsetWidth };
+  floatResize.setPointerCapture(event.pointerId);
+  floatEl.classList.add("resizing");
+});
+
+floatResize.addEventListener("pointermove", event => {
+  if (!floatSize) return;
+  const left = floatEl.getBoundingClientRect().left;
+  const max = Math.max(200, Math.min(900, window.innerWidth - left - FLOAT_MARGIN));
+  floatEl.style.width = `${Math.min(Math.max(floatSize.w + event.clientX - floatSize.x, 200), max)}px`;
+  const b = floatBounds();
+  if (floatEl.getBoundingClientRect().top > b.maxTop) floatEl.style.top = `${b.maxTop}px`;
+});
+
+function endFloatResize() {
+  if (!floatSize) return;
+  floatSize = null;
+  floatEl.classList.remove("resizing");
+  const rect = floatEl.getBoundingClientRect();
+  floatCorner = `${rect.top + rect.height / 2 < window.innerHeight / 2 ? "top" : "bottom"}-${rect.left + rect.width / 2 < window.innerWidth / 2 ? "left" : "right"}`;
+  snapFloatingVideo();
+}
+
+floatResize.addEventListener("pointerup", endFloatResize);
+floatResize.addEventListener("pointercancel", endFloatResize);
 document.getElementById("closeFloatingVideo").addEventListener("click", closeFloatingVideo);
-modal.addEventListener("scroll", () => { if (!floatEl.hidden && !floatDrag) snapFloatingVideo(); }, { passive: true });
-window.addEventListener("resize", () => { if (!floatEl.hidden && !floatDrag) snapFloatingVideo(); });
+modal.addEventListener("scroll", () => { if (!floatEl.hidden && !floatDrag && !floatSize) snapFloatingVideo(); }, { passive: true });
+window.addEventListener("resize", () => { if (!floatEl.hidden && !floatDrag && !floatSize) snapFloatingVideo(); });
 
 function renderLacrossePage() {
   lacrosseExperience.innerHTML = LACROSSE_EXPERIENCE.map(place => `<li>${place}</li>`).join("");

@@ -39,7 +39,10 @@ const PROJECTS = [
     subtitle: "IDES3302B Projects IIB (STU) Winter 2026",
     specCode: "SCHOOL PROJECT",
     thumb: "assets/School/RRCRC Connection/ThumbnailPictureRRCRC.png",
-    summary: "Project details and presentation materials will be added here.",
+    summary: [
+      "Field research at the Rideau-Rockcliffe Community Resource Centre (CRCRR) revealed that key facilities like the Multi-Use Theatre Hub (MUTH) were significantly underutilized due to low visibility, fragmented web navigation, and a high-friction booking process. Rather than building an isolated site for a single room, the project pivoted to a scalable, low-budget digital extension for the entire community center that lowers the barrier to entry and maximizes local engagement.",
+      "CRCRR Connection serves as a centralized digital hub where residents can seamlessly discover spaces, join local groups, and register for community events. Featuring a persistent navigation menu and a unified directory, the platform replaces cumbersome, multi-channel registration steps with a single, intuitive interface tailored for an inclusive demographic—from older adults and newcomers to Canada to digital natives."
+    ],
     video: {
       src: "https://player.vimeo.com/video/1237430161?badge=0&autopause=0&player_id=0&app_id=58479",
       title: "RRCRC Connection video"
@@ -190,10 +193,10 @@ function openProject(project) {
   modalCategory.textContent = project.tools ? `${project.specCode} // ${project.tools}` : project.specCode;
   modalTitle.textContent = project.title;
 
+  const summaries = Array.isArray(project.summary) ? project.summary : [project.summary];
   modalIntro.innerHTML = `
-    <div>
-      <h3 style="margin-bottom:0.4rem;">Project Overview</h3>
-      <p style="color:var(--ink-charcoal);">${project.summary}</p>
+    <div class="project-details">
+      ${summaries.map(summary => `<p>${summary}</p>`).join("")}
     </div>
     ${project.tools ? `<div>
       <span class="step-badge">Tools & Specs</span>
@@ -302,33 +305,74 @@ floatHandle.addEventListener("pointercancel", endFloatDrag);
 const floatResize = document.getElementById("floatingVideoResize");
 let floatSize = null;
 
-floatResize.addEventListener("pointerdown", event => {
+floatEl.querySelectorAll("[data-resize]").forEach(handle => handle.addEventListener("pointerdown", event => {
   event.preventDefault();
-  floatSize = { x: event.clientX, w: floatEl.offsetWidth };
-  floatResize.setPointerCapture(event.pointerId);
+  const rect = floatEl.getBoundingClientRect();
+  floatSize = {
+    direction: handle.dataset.resize,
+    x: event.clientX,
+    y: event.clientY,
+    left: rect.left,
+    top: rect.top,
+    width: rect.width,
+    height: rect.height
+  };
+  handle.setPointerCapture(event.pointerId);
   floatEl.classList.add("resizing");
-});
+}));
 
-floatResize.addEventListener("pointermove", event => {
+floatEl.addEventListener("pointermove", event => {
   if (!floatSize) return;
-  const left = floatEl.getBoundingClientRect().left;
-  const max = Math.max(200, Math.min(900, window.innerWidth - left - FLOAT_MARGIN));
-  floatEl.style.width = `${Math.min(Math.max(floatSize.w + event.clientX - floatSize.x, 200), max)}px`;
-  const b = floatBounds();
-  if (floatEl.getBoundingClientRect().top > b.maxTop) floatEl.style.top = `${b.maxTop}px`;
+  const { direction, x, y, left, top, width, height } = floatSize;
+  const deltaX = event.clientX - x;
+  const deltaY = event.clientY - y;
+  const resizingWest = direction.includes("w");
+  const resizingNorth = direction.includes("n");
+  const right = left + width;
+  const bottom = top + height;
+  const minTop = floatBounds().minTop;
+  const minWidth = 200;
+  const minHeight = 140;
+  const maxWidth = Math.max(minWidth, Math.min(900, window.innerWidth - FLOAT_MARGIN * 2));
+  const maxHeight = Math.max(minHeight, window.innerHeight - minTop - FLOAT_MARGIN);
+  let nextWidth = width;
+  let nextHeight = height;
+  let nextLeft = left;
+  let nextTop = top;
+
+  if (direction.includes("e")) {
+    nextWidth = Math.min(Math.max(width + deltaX, minWidth), Math.min(maxWidth, window.innerWidth - FLOAT_MARGIN - left));
+  } else if (resizingWest) {
+    nextWidth = Math.min(Math.max(width - deltaX, minWidth), Math.min(maxWidth, right - FLOAT_MARGIN));
+    nextLeft = right - nextWidth;
+  }
+
+  if (direction.includes("s")) {
+    nextHeight = Math.min(Math.max(height + deltaY, minHeight), Math.min(maxHeight, window.innerHeight - FLOAT_MARGIN - top));
+  } else if (resizingNorth) {
+    nextHeight = Math.min(Math.max(height - deltaY, minHeight), Math.min(maxHeight, bottom - minTop));
+    nextTop = bottom - nextHeight;
+  }
+
+  floatEl.style.left = `${nextLeft}px`;
+  floatEl.style.top = `${nextTop}px`;
+  floatEl.style.width = `${nextWidth}px`;
+  floatEl.style.height = `${nextHeight}px`;
 });
 
-function endFloatResize() {
+function endFloatResize(event) {
   if (!floatSize) return;
   floatSize = null;
   floatEl.classList.remove("resizing");
+  const handle = event?.target.closest("[data-resize]");
+  if (handle?.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
   const rect = floatEl.getBoundingClientRect();
   floatCorner = `${rect.top + rect.height / 2 < window.innerHeight / 2 ? "top" : "bottom"}-${rect.left + rect.width / 2 < window.innerWidth / 2 ? "left" : "right"}`;
   snapFloatingVideo();
 }
 
-floatResize.addEventListener("pointerup", endFloatResize);
-floatResize.addEventListener("pointercancel", endFloatResize);
+floatEl.addEventListener("pointerup", endFloatResize);
+floatEl.addEventListener("pointercancel", endFloatResize);
 document.getElementById("closeFloatingVideo").addEventListener("click", closeFloatingVideo);
 modal.addEventListener("scroll", () => { if (!floatEl.hidden && !floatDrag && !floatSize) snapFloatingVideo(); }, { passive: true });
 window.addEventListener("resize", () => { if (!floatEl.hidden && !floatDrag && !floatSize) snapFloatingVideo(); });

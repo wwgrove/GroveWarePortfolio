@@ -522,6 +522,14 @@ body {
   border-bottom: 1px solid var(--border-line);
 }
 
+.drawer-titles h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.65rem, 3vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
 .tactile-close {
   background: var(--artboard-white);
   border: 1px solid var(--border-line);
@@ -540,6 +548,40 @@ body {
   transform: scale(0.93);
 }
 
+.drawer-bar .tactile-close {
+  min-height: 3rem;
+  padding: 0.65rem 1.15rem;
+  border-color: transparent;
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--ink-charcoal);
+  font-size: 0.95rem;
+  transition: transform 0.2s var(--spring-ease), border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.drawer-bar .tactile-close:hover,
+.drawer-bar .tactile-close:focus-visible {
+  border-color: var(--border-line);
+  background: var(--artboard-white);
+  color: var(--ink-black);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.drawer-bar .tactile-close:focus-visible {
+  outline: 2px solid var(--callout-orange);
+  outline-offset: 2px;
+}
+
+.drawer-bar .tactile-close span {
+  display: inline-block;
+  margin-left: 0.25rem;
+  font-size: 1.1em;
+  transition: transform 0.2s var(--spring-ease);
+}
+
+.drawer-bar .tactile-close:hover span {
+  transform: rotate(90deg);
+}
+
 .drawer-scroll-container {
   max-width: 1360px;
   margin: 0 auto;
@@ -555,6 +597,14 @@ body {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 2rem;
+}
+
+.project-details {
+  display: grid;
+  gap: 1rem;
+  color: var(--ink-charcoal);
+  font-size: 1.05rem;
+  line-height: 1.7;
 }
 
 .boards-stack {
@@ -644,6 +694,9 @@ body {
   position: fixed;
   z-index: 30;
   width: min(320px, 70vw);
+  height: min(220px, 45vh);
+  display: flex;
+  flex-direction: column;
   background: var(--artboard-white);
   border: 1px solid var(--border-line);
   border-radius: 8px;
@@ -658,14 +711,64 @@ body {
 .floating-video.resizing iframe { pointer-events: none; }
 .floating-video-resize {
   position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 22px;
-  height: 22px;
-  cursor: nwse-resize;
+  z-index: 2;
+  background: transparent;
   touch-action: none;
-  background: linear-gradient(135deg, transparent 50%, var(--border-line) 50%, var(--border-line) 58%, transparent 58%, transparent 72%, var(--border-line) 72%, var(--border-line) 80%, transparent 80%);
-  border-bottom-right-radius: 8px;
+}
+.floating-video-resize::after {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 24px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--ink-muted);
+  opacity: 0.35;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+.floating-video-resize:hover::after {
+  background: var(--callout-orange);
+  opacity: 0.9;
+}
+.resize-n, .resize-s {
+  left: 16px;
+  right: 16px;
+  height: 12px;
+  cursor: ns-resize;
+}
+.resize-n { top: -5px; }
+.resize-s { bottom: -5px; }
+.resize-e, .resize-w {
+  top: 16px;
+  bottom: 16px;
+  width: 12px;
+  cursor: ew-resize;
+}
+.resize-e { right: -5px; }
+.resize-w { left: -5px; }
+.resize-ne, .resize-se, .resize-sw, .resize-nw {
+  width: 20px;
+  height: 20px;
+}
+.resize-ne { top: -5px; right: -5px; cursor: nesw-resize; }
+.resize-se { right: -5px; bottom: -5px; cursor: nwse-resize; }
+.resize-sw { bottom: -5px; left: -5px; cursor: nesw-resize; }
+.resize-nw { top: -5px; left: -5px; cursor: nwse-resize; }
+.resize-ne::after, .resize-se::after, .resize-sw::after, .resize-nw::after {
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid var(--ink-muted);
+  background: transparent;
+  opacity: 0.4;
+}
+.resize-se::after { border-top: 0; border-left: 0; }
+.resize-sw::after { border-top: 0; border-right: 0; }
+.resize-ne::after { border-bottom: 0; border-left: 0; }
+.resize-nw::after { border-bottom: 0; border-right: 0; }
+.floating-video-resize:hover::after {
+  border-color: var(--callout-orange);
+  background-color: transparent;
 }
 .floating-video.dragging iframe { pointer-events: none; }
 
@@ -685,7 +788,8 @@ body {
 
 .floating-video-frame {
   position: relative;
-  aspect-ratio: 16 / 9;
+  flex: 1;
+  min-height: 0;
   background: #000;
   border-radius: 4px;
   overflow: hidden;

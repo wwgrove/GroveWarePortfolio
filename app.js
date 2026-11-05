@@ -95,8 +95,33 @@ const PROJECTS = [
       { label: "Final Boards (PDF)", src: "assets/School/Armor-Core/Zippo Helmet Boards - Reduced.pdf" }
     ]
   },
+  {
+    id: "torus",
+    category: "industrial-design",
+    title: "Torus",
+    subtitle: "Ambient table lamp",
+    specCode: "SCHOOL PROJECT",
+    thumb: "assets/School/Torus/RenderHero.png",
+    summary: "Project details and presentation materials will be added here.",
+    model: {
+      src: "assets/School/Torus/torus.glb",
+      poster: "assets/School/Torus/RenderHero.png",
+      label: "Interactive 3D Model"
+    },
+    boards: [],
+    documents: [
+      { label: "Presentation Boards (PDF)", src: "assets/School/Torus/LabP1 - Torus - PG-JR-JS-WW.pdf" }
+    ],
+    books: [
+      {
+        label: "Presentation Boards",
+        aspect: "792 / 612",
+        pdf: "assets/School/Torus/LabP1 - Torus - PG-JR-JS-WW.pdf",
+        pages: Array.from({ length: 10 }, (_, i) => `assets/School/Torus/torus-board-${String(i + 1).padStart(2, "0")}.webp`)
+      }
+    ]
+  },
   ...[
-    "Torus",
     "JoAnne",
     "Keystone",
     "Worm at the Disco",
@@ -271,12 +296,25 @@ function openProject(project) {
       </div>
     </div>` : "";
 
+  const modelHtml = project.model ? `
+    <div class="model-viewer">
+      <div class="flipbook-head">
+        <span class="step-badge">${project.model.label}</span>
+        <button type="button" class="doc-link model-reset" hidden>Reset View</button>
+      </div>
+      <div class="model-stage" role="group" aria-label="${project.title} interactive 3D model">
+        <img class="model-poster" src="${project.model.poster}" alt="${project.title} render">
+        <span class="model-status">Loading 3D model…</span>
+      </div>
+      <p class="model-hint">Drag to orbit · scroll or pinch to zoom</p>
+    </div>` : "";
+
   const docsHtml = project.documents ? `
     <div class="project-documents">
       ${project.documents.map(doc => `<a class="doc-link" href="${encodeURI(doc.src)}" target="_blank" rel="noopener">${doc.label}</a>`).join("")}
     </div>` : "";
 
-  modalBoards.innerHTML = demoHtml + docsHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
+  modalBoards.innerHTML = modelHtml + demoHtml + docsHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
     <figure class="presentation-board">
       <img src="${boardSrc}" alt="${project.title} - Board ${index + 1}" loading="lazy" decoding="async">
     </figure>
@@ -284,10 +322,46 @@ function openProject(project) {
 
   (project.books || []).forEach((book, i) => createFlipbook(modalBoards.querySelector(`[data-book="${i}"]`), book, project.title));
 
+  if (project.model) mountModel(project.model);
+
   modal.showModal();
   document.body.style.overflow = "hidden";
   modal.scrollTop = 0;
   openFloatingVideo(project.video);
+}
+
+let activeViewer = null;
+let viewerToken = 0;
+
+async function mountModel(model) {
+  const token = ++viewerToken;
+  const stage = modalBoards.querySelector(".model-stage");
+  const status = stage.querySelector(".model-status");
+  const poster = stage.querySelector(".model-poster");
+  const reset = modalBoards.querySelector(".model-reset");
+  try {
+    const { createModelViewer } = await import("./model-viewer.js");
+    if (token !== viewerToken) return;
+    activeViewer = createModelViewer(stage, {
+      src: model.src,
+      onReady: () => {
+        stage.classList.add("ready");
+        poster.remove();
+        status.remove();
+        reset.hidden = false;
+        reset.addEventListener("click", () => activeViewer?.reset());
+      },
+      onError: () => { status.textContent = "3D preview unavailable"; }
+    });
+  } catch (err) {
+    status.textContent = "3D preview unavailable";
+  }
+}
+
+function disposeModel() {
+  viewerToken++;
+  activeViewer?.dispose();
+  activeViewer = null;
 }
 
 function createFlipbook(host, book, projectTitle) {
@@ -377,6 +451,7 @@ function createFlipbook(host, book, projectTitle) {
 
 function closeProject() {
   closeFloatingVideo();
+  disposeModel();
   modal.close();
   modalBoards.innerHTML = "";
   document.body.style.overflow = "";

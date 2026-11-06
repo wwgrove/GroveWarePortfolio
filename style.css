@@ -613,6 +613,14 @@ body {
   gap: 1.75rem;
 }
 
+.project-hero-video video {
+  display: block;
+  width: 100%;
+  max-height: 75vh;
+  border-radius: 8px;
+  background: var(--ink-black);
+}
+
 .presentation-board {
   width: 100%;
   background: var(--artboard-white);

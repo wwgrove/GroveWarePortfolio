@@ -146,16 +146,37 @@ const PROJECTS = [
       { label: "Presentation Boards (PDF)", src: "assets/School/Keystone/KeystoneBoards.pdf" }
     ]
   },
-  ...["Worm at the Disco", "Concepts (various concepts)"].map((title, index) => ({
-    id: `school-project-${index + 3}`,
+  {
+    id: "school-project-3",
     category: "industrial-design",
-    title,
+    title: "Worm at the Disco",
+    subtitle: "Hand-cranked dancing automaton",
+    specCode: "SCHOOL PROJECT",
+    thumb: "assets/School/Worm at the Disco/worm-gallery.webp",
+    summary: [
+      "Worm at the Disco is a 3D-printed and laser-cut automaton inspired by the worm dance. Turning the handle makes the figure dance while the disco ball spins, transforming a simple rotation into a playful performance.",
+      "The mechanism evolved from an initial push-rod and lobe-cam prototype to circular cams and gears that drive the axles and create smoother movement."
+    ],
+    heroVideo: {
+      src: "assets/School/Worm at the Disco/GIZMO_1_1.mp4",
+      poster: "assets/School/Worm at the Disco/worm-gallery.webp",
+      title: "Worm at the Disco automaton in motion"
+    },
+    boards: Array.from({ length: 2 }, (_, i) => `assets/School/Worm at the Disco/worm-board-${i + 1}.webp`),
+    documents: [
+      { label: "Presentation Boards (PDF)", src: "assets/School/Worm at the Disco/WormAtTheDiscoFinalBoards.pdf" }
+    ]
+  },
+  {
+    id: "school-project-4",
+    category: "industrial-design",
+    title: "Concepts (various concepts)",
     subtitle: "School project",
     specCode: "SCHOOL PROJECT",
     summary: "Project details and presentation materials will be added here.",
-    isConcept: title === "Concepts (various concepts)",
+    isConcept: true,
     boards: []
-  })),
+  },
   {
     id: "hoode",
     category: "personal",
@@ -329,12 +350,18 @@ function openProject(project) {
       <p class="model-hint">Drag to orbit · scroll or pinch to zoom</p>
     </div>` : "";
 
+  const heroVideoHtml = project.heroVideo ? `
+    <div class="project-hero-video">
+      <video src="${project.heroVideo.src}" poster="${project.heroVideo.poster}" aria-label="${project.heroVideo.title}"
+        controls muted loop playsinline preload="metadata"${matchMedia("(prefers-reduced-motion: reduce)").matches ? "" : " autoplay"}></video>
+    </div>` : "";
+
   const docsHtml = project.documents ? `
     <div class="project-documents">
       ${project.documents.map(doc => `<a class="doc-link" href="${encodeURI(doc.src)}" target="_blank" rel="noopener">${doc.label}</a>`).join("")}
     </div>` : "";
 
-  modalBoards.innerHTML = modelHtml + demoHtml + docsHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
+  modalBoards.innerHTML = heroVideoHtml + modelHtml + demoHtml + docsHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
     <figure class="presentation-board">
       <img src="${boardSrc}" alt="${project.title} - Board ${index + 1}" loading="lazy" decoding="async">
     </figure>

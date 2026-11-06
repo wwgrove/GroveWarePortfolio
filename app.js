@@ -240,7 +240,7 @@ const LACROSSE_EXPERIENCE = [
 
 const LACROSSE_GALLERY = [
   {
-    src: "assets/Personal/carletonlacrosse.ca/HERO.png",
+    src: "assets/Personal/carletonlacrosse.ca/hero-gallery.webp",
     alt: "Carleton Lacrosse graphic",
     caption: "Carleton Lacrosse"
   }

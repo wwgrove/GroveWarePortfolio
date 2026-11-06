@@ -1109,6 +1109,13 @@ body {
   margin: 1.5rem 0;
 }
 
+.project-features h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.5vw, 1.8rem);
+  letter-spacing: -0.03em;
+}
+
 .project-features ol {
   list-style: none;
   counter-reset: feature;

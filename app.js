@@ -31,6 +31,37 @@ const CATEGORIES = {
   }
 };
 
+const CARLETON_LACROSSE_SITE = {
+  subtitle: "Men's lacrosse team website",
+  summary: [
+    "carletonlacrosse.ca is the official website of the Carleton Ravens Men's Lacrosse club, which competes in the CUFLA East Division. I designed and built it as a single, fast, mobile-friendly site that gives players, recruits, families and fans one place to find everything about the team. It was prototyped in Figma Make and is published on GitHub Pages at www.carletonlacrosse.ca.",
+    "The live site is embedded below. Scroll and click through it exactly as a visitor would."
+  ],
+  demo: {
+    src: "https://www.carletonlacrosse.ca",
+    title: "carletonlacrosse.ca live website",
+    address: "www.carletonlacrosse.ca",
+    label: "Live Website",
+    hint: "this is the real, running site. Scroll and click through it to explore."
+  },
+  features: {
+    heading: "How the site works, in plain English",
+    items: [
+      ["Home page with photo slideshow", "The top of the site shows action photos from games. The pictures rotate on their own, like a slideshow, so the page always feels fresh."],
+      ["Six tabs", "Overview, Roster, Stats, Schedule, Staff and Recruiting. Tapping a tab swaps the content instantly without reloading the page, like flipping between pages of a binder."],
+      ["Overview", "Tells the story of the program (founded in 1986), shows quick facts like the number of games and weekly practices, and has shortcut buttons to join the team or see the season."],
+      ["Roster", "A list of every player and their jersey number. It pulls from the league's official stats website (Gamesheet), so when the league changes something, the site follows."],
+      ["Stats", "Team record, goals scored and allowed, and a table of every player's goals, assists and points. Tap a column heading like Goals or Points to sort the table. Goalie numbers are shown separately."],
+      ["Schedule", "Every game with the date, opponent, home or away, the result or start time, and the location. Beside it is the team's Google Calendar showing practices and travel."],
+      ["Staff", "Photos, roles and email addresses for the coaches and team staff, plus a general contact email."],
+      ["Recruiting form", "Prospective players fill out a short form (name, position, height, highlight link and more). When they press submit, the info is sent to a Google Sheet the coaches read. The form only allows one submission per browser to prevent duplicates."],
+      ["Quick-link buttons", "Icons over the photo link to the team's Instagram, the Google Calendar and the Carleton giving page for donations."],
+      ["Updates itself", "A robot (a scheduled GitHub job) visits the league's stats site every 30 minutes, copies the newest roster, stats and schedule, and republishes the website. Nobody has to edit it by hand."],
+      ["Works on phones and is findable", "The layout adjusts to phone, tablet or computer screens, and the site includes the extra files search engines like Google use to find and list it."]
+    ]
+  }
+};
+
 const PROJECTS = [
   {
     id: "rrcrc-connection",
@@ -119,15 +150,6 @@ const PROJECTS = [
     ]
   },
   {
-    id: "school-project-1",
-    category: "industrial-design",
-    title: "JoAnne",
-    subtitle: "School project",
-    specCode: "SCHOOL PROJECT",
-    summary: "Project details and presentation materials will be added here.",
-    boards: []
-  },
-  {
     id: "school-project-2",
     category: "industrial-design",
     title: "Keystone",
@@ -190,7 +212,7 @@ const PROJECTS = [
     ],
     boards: Array.from({ length: 4 }, (_, i) => `assets/Personal/Hoode/hoode-board-${i + 1}.webp`)
   },
-  ...["carletonlacrosse.com", "Carleton Lacrosse Helmet Decals", "Lacrosse Stick Rack"]
+  ...["carletonlacrosse.ca", "Carleton Lacrosse Helmet Decals", "Lacrosse Stick Rack"]
     .map((title, index) => ({
       id: `personal-project-${index + 2}`,
       category: "personal",
@@ -198,7 +220,12 @@ const PROJECTS = [
       subtitle: "Personal project",
       specCode: "PERSONAL PROJECT",
       summary: "Project details and presentation materials will be added here.",
-      boards: []
+      boards: [],
+      ...(title === "carletonlacrosse.ca" && CARLETON_LACROSSE_SITE),
+      ...(title === "Lacrosse Stick Rack" && {
+        thumb: "assets/Personal/Lacrosse Stick Rack/stick-rack-hero.jpg",
+        inProgress: true
+      })
     }))
 ];
 
@@ -297,6 +324,16 @@ function renderPage(pageKey) {
       </div>
     `;
 
+    if (project.inProgress) {
+      card.classList.add("in-progress");
+      card.removeAttribute("tabindex");
+      card.setAttribute("aria-disabled", "true");
+      card.querySelector(".artboard-stage").insertAdjacentHTML("beforeend", '<span class="in-progress-overlay">In Progress</span>');
+      card.querySelector(".card-arrow").remove();
+      gridEl.appendChild(card);
+      return;
+    }
+
     card.addEventListener("click", () => openProject(project));
     card.addEventListener("keydown", e => {
       if (e.key === "Enter" || e.key === " ") {
@@ -324,11 +361,11 @@ function openProject(project) {
   `;
 
   const demoHtml = project.demo ? `
-    <div class="demo-label"><span class="demo-badge">Live Demo</span> Interactive prototype: hover over the window and click through it to explore.</div>
+    <div class="demo-label"><span class="demo-badge">${project.demo.label || "Live Demo"}</span> ${project.demo.hint ? project.demo.hint.charAt(0).toUpperCase() + project.demo.hint.slice(1) : "Interactive prototype: hover over the window and click through it to explore."}</div>
     <div class="project-demo">
       <div class="demo-browser-chrome" aria-hidden="true">
         <div class="demo-window-controls"><span></span><span></span><span></span></div>
-        <div class="demo-address-bar"><span class="demo-address-icon">⌕</span><span>Search Google or type a URL</span></div>
+        <div class="demo-address-bar"><span class="demo-address-icon">⌕</span><span>${project.demo.address || "Search Google or type a URL"}</span></div>
         <span class="demo-browser-menu">⋮</span>
       </div>
       <div class="project-demo-viewport">
@@ -336,6 +373,14 @@ function openProject(project) {
           allow="fullscreen" allowfullscreen></iframe>
       </div>
     </div>` : "";
+
+  const featuresHtml = project.features ? `
+    <section class="project-features">
+      <span class="step-badge">${project.features.heading}</span>
+      <ol>
+        ${project.features.items.map(([name, text]) => `<li><strong>${name}</strong><span>${text}</span></li>`).join("")}
+      </ol>
+    </section>` : "";
 
   const modelHtml = project.model ? `
     <div class="model-viewer">
@@ -361,7 +406,7 @@ function openProject(project) {
       ${project.documents.map(doc => `<a class="doc-link" href="${encodeURI(doc.src)}" target="_blank" rel="noopener">${doc.label}</a>`).join("")}
     </div>` : "";
 
-  modalBoards.innerHTML = heroVideoHtml + modelHtml + demoHtml + docsHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
+  modalBoards.innerHTML = heroVideoHtml + modelHtml + demoHtml + featuresHtml + docsHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
     <figure class="presentation-board">
       <img src="${boardSrc}" alt="${project.title} - Board ${index + 1}" loading="lazy" decoding="async">
     </figure>

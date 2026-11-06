@@ -109,9 +109,6 @@ const PROJECTS = [
       label: "Interactive 3D Model"
     },
     boards: [],
-    documents: [
-      { label: "Presentation Boards (PDF)", src: "assets/School/Torus/LabP1 - Torus - PG-JR-JS-WW.pdf" }
-    ],
     books: [
       {
         label: "Presentation Boards",
@@ -121,13 +118,36 @@ const PROJECTS = [
       }
     ]
   },
-  ...[
-    "JoAnne",
-    "Keystone",
-    "Worm at the Disco",
-    "Concepts (various concepts)"
-  ].map((title, index) => ({
-    id: `school-project-${index + 1}`,
+  {
+    id: "school-project-1",
+    category: "industrial-design",
+    title: "JoAnne",
+    subtitle: "School project",
+    specCode: "SCHOOL PROJECT",
+    summary: "Project details and presentation materials will be added here.",
+    boards: []
+  },
+  {
+    id: "school-project-2",
+    category: "industrial-design",
+    title: "Keystone",
+    subtitle: "Sculptural wine rack",
+    specCode: "SCHOOL PROJECT",
+    thumb: "assets/School/Keystone/DoisedMoneyshot.webp",
+    summary: "Keystone is a sculptural wine rack designed to hold up to six bottles. Intersecting arches distribute their weight to the outer edges, creating a stable structure that also serves as a visual centerpiece when not in use.",
+    model: {
+      src: "assets/School/Keystone/keystone.glb",
+      poster: "assets/School/Keystone/DoisedMoneyshot.webp",
+      label: "Interactive 3D Model",
+      finish: "orange-plastic"
+    },
+    boards: Array.from({ length: 5 }, (_, i) => `assets/School/Keystone/keystone-board-${i + 1}.webp`),
+    documents: [
+      { label: "Presentation Boards (PDF)", src: "assets/School/Keystone/KeystoneBoards.pdf" }
+    ]
+  },
+  ...["Worm at the Disco", "Concepts (various concepts)"].map((title, index) => ({
+    id: `school-project-${index + 3}`,
     category: "industrial-design",
     title,
     subtitle: "School project",
@@ -344,6 +364,7 @@ async function mountModel(model) {
     if (token !== viewerToken) return;
     activeViewer = createModelViewer(stage, {
       src: model.src,
+      finish: model.finish,
       onReady: () => {
         stage.classList.add("ready");
         poster.remove();

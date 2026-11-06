@@ -45,7 +45,7 @@ const CARLETON_LACROSSE_SITE = {
     hint: "this is the real, running site. Scroll and click through it to explore."
   },
   features: {
-    heading: "How the site works, in plain English",
+    heading: "Features",
     items: [
       ["Home page with photo slideshow", "The top of the site shows action photos from games. The pictures rotate on their own, like a slideshow, so the page always feels fresh."],
       ["Six tabs", "Overview, Roster, Stats, Schedule, Staff and Recruiting. Tapping a tab swaps the content instantly without reloading the page, like flipping between pages of a binder."],
@@ -376,7 +376,7 @@ function openProject(project) {
 
   const featuresHtml = project.features ? `
     <section class="project-features">
-      <span class="step-badge">${project.features.heading}</span>
+      <h2>${project.features.heading}</h2>
       <ol>
         ${project.features.items.map(([name, text]) => `<li><strong>${name}</strong><span>${text}</span></li>`).join("")}
       </ol>

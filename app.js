@@ -62,6 +62,8 @@ const CARLETON_LACROSSE_SITE = {
   }
 };
 
+const CARLETON_LACROSSE_GALLERY_IMAGE = "assets/Personal/carletonlacrosse.ca/hero-gallery.webp";
+
 const PROJECTS = [
   {
     id: "rrcrc-connection",
@@ -221,7 +223,11 @@ const PROJECTS = [
       specCode: "PERSONAL PROJECT",
       summary: "Project details and presentation materials will be added here.",
       boards: [],
-      ...(title === "carletonlacrosse.ca" && CARLETON_LACROSSE_SITE),
+      ...(title === "carletonlacrosse.ca" && {
+        ...CARLETON_LACROSSE_SITE,
+        thumb: CARLETON_LACROSSE_GALLERY_IMAGE,
+        boards: [CARLETON_LACROSSE_GALLERY_IMAGE]
+      }),
       ...(title === "Lacrosse Stick Rack" && {
         thumb: "assets/Personal/Lacrosse Stick Rack/stick-rack-hero.jpg",
         inProgress: true
@@ -236,14 +242,6 @@ const LACROSSE_EXPERIENCE = [
   "Lax Factory",
   "Carleton Men's Lacrosse",
   "GCDS Varsity Lacrosse"
-];
-
-const LACROSSE_GALLERY = [
-  {
-    src: "assets/Personal/carletonlacrosse.ca/hero-gallery.webp",
-    alt: "Carleton Lacrosse graphic",
-    caption: "Carleton Lacrosse"
-  }
 ];
 
 const gridEl = document.getElementById("projectGrid");
@@ -263,15 +261,7 @@ const modalTitle = document.getElementById("modalTitle");
 const modalIntro = document.getElementById("modalIntro");
 const modalBoards = document.getElementById("modalBoards");
 const closeModalBtn = document.getElementById("closeModalBtn");
-const galleryModal = document.getElementById("galleryModal");
-const galleryImage = document.getElementById("galleryImage");
-const galleryCaption = document.getElementById("galleryCaption");
-const previousGalleryImage = document.getElementById("previousGalleryImage");
-const nextGalleryImage = document.getElementById("nextGalleryImage");
 const lacrosseExperience = document.getElementById("lacrosseExperience");
-const lacrosseGallery = document.getElementById("lacrosseGallery");
-let activeGalleryImage = 0;
-let galleryTouchStartX = null;
 let activeSchoolFilter = "projects";
 
 function renderPage(pageKey) {
@@ -706,43 +696,6 @@ window.addEventListener("resize", () => { if (!floatEl.hidden && !floatDrag && !
 
 function renderLacrossePage() {
   lacrosseExperience.innerHTML = LACROSSE_EXPERIENCE.map(place => `<li>${place}</li>`).join("");
-  lacrosseGallery.innerHTML = LACROSSE_GALLERY.map((photo, index) => `
-    <button class="gallery-card" type="button" data-gallery-index="${index}" aria-label="Open photo: ${photo.caption}">
-      <img src="${photo.src}" alt="${photo.alt}" loading="lazy" decoding="async">
-      <span>${photo.caption}</span>
-    </button>
-  `).join("");
-  lacrosseGallery.querySelectorAll(".gallery-card").forEach(card => {
-    card.addEventListener("click", () => openGallery(Number(card.dataset.galleryIndex)));
-  });
-}
-
-function showGalleryImage() {
-  const photo = LACROSSE_GALLERY[activeGalleryImage];
-  galleryImage.src = photo.src;
-  galleryImage.alt = photo.alt;
-  galleryCaption.textContent = `${photo.caption} (${activeGalleryImage + 1} of ${LACROSSE_GALLERY.length})`;
-  const hasMultipleImages = LACROSSE_GALLERY.length > 1;
-  previousGalleryImage.hidden = !hasMultipleImages;
-  nextGalleryImage.hidden = !hasMultipleImages;
-}
-
-function openGallery(index) {
-  activeGalleryImage = index;
-  showGalleryImage();
-  galleryModal.showModal();
-  document.body.style.overflow = "hidden";
-}
-
-function closeGallery() {
-  if (galleryModal.open) galleryModal.close();
-  galleryImage.removeAttribute("src");
-  document.body.style.overflow = "";
-}
-
-function moveGalleryImage(direction) {
-  activeGalleryImage = (activeGalleryImage + direction + LACROSSE_GALLERY.length) % LACROSSE_GALLERY.length;
-  showGalleryImage();
 }
 
 navTabs.forEach(tab => {
@@ -772,29 +725,6 @@ closeModalBtn.addEventListener("click", closeProject);
 modal.addEventListener("close", closeProject);
 modal.addEventListener("click", e => {
   if (e.target === modal) closeProject();
-});
-
-document.getElementById("closeGalleryBtn").addEventListener("click", closeGallery);
-galleryModal.addEventListener("close", closeGallery);
-galleryModal.addEventListener("click", event => {
-  if (event.target === galleryModal) closeGallery();
-});
-previousGalleryImage.addEventListener("click", () => moveGalleryImage(-1));
-nextGalleryImage.addEventListener("click", () => moveGalleryImage(1));
-galleryImage.addEventListener("touchstart", event => {
-  galleryTouchStartX = event.changedTouches[0].clientX;
-}, { passive: true });
-galleryImage.addEventListener("touchend", event => {
-  if (galleryTouchStartX === null) return;
-  const swipeDistance = event.changedTouches[0].clientX - galleryTouchStartX;
-  galleryTouchStartX = null;
-  if (Math.abs(swipeDistance) > 40 && LACROSSE_GALLERY.length > 1) {
-    moveGalleryImage(swipeDistance > 0 ? -1 : 1);
-  }
-}, { passive: true });
-galleryModal.addEventListener("keydown", event => {
-  if (event.key === "ArrowLeft") moveGalleryImage(-1);
-  if (event.key === "ArrowRight") moveGalleryImage(1);
 });
 
 const startHash = window.location.hash.replace("#", "") || "home";

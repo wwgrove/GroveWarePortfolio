@@ -238,7 +238,13 @@ const LACROSSE_EXPERIENCE = [
   "GCDS Varsity Lacrosse"
 ];
 
-const LACROSSE_GALLERY = [];
+const LACROSSE_GALLERY = [
+  {
+    src: "assets/Personal/carletonlacrosse.ca/HERO@4x.png",
+    alt: "Carleton Lacrosse graphic",
+    caption: "Carleton Lacrosse"
+  }
+];
 
 const gridEl = document.getElementById("projectGrid");
 const homeEl = document.getElementById("homePage");

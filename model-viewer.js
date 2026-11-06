@@ -41,7 +41,7 @@ function woodTexture(renderer) {
   return t;
 }
 
-export function createModelViewer(host, { src, onReady, onError }) {
+export function createModelViewer(host, { src, finish, onReady, onError }) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -85,7 +85,7 @@ export function createModelViewer(host, { src, onReady, onError }) {
   glow.position.set(0, 0.1, 0.9);
   const glowBack = glow.clone();
   glowBack.position.z = -0.9;
-  scene.add(glow, glowBack);
+  if (finish !== "orange-plastic") scene.add(glow, glowBack);
 
   const table = new THREE.Mesh(
     new THREE.CylinderGeometry(3.6, 3.6, 0.1, 96),
@@ -100,19 +100,21 @@ export function createModelViewer(host, { src, onReady, onError }) {
 
   new GLTFLoader().load(src, gltf => {
     if (disposed) return;
-    const lamp = gltf.scene;
-    lamp.traverse(o => {
+    const model = gltf.scene;
+    model.traverse(o => {
       if (!o.isMesh) return;
       o.geometry.deleteAttribute("normal");
       o.geometry = toCreasedNormals(o.geometry, THREE.MathUtils.degToRad(35));
-      o.material = (MATERIALS[o.name] || MATERIALS.stand)();
-      o.castShadow = o.name !== "shell";
-      o.receiveShadow = o.name !== "shell";
+      o.material = finish === "orange-plastic"
+        ? new THREE.MeshStandardMaterial({ color: 0xe87516, roughness: 0.32, metalness: 0 })
+        : (MATERIALS[o.name] || MATERIALS.stand)();
+      o.castShadow = finish === "orange-plastic" || o.name !== "shell";
+      o.receiveShadow = finish === "orange-plastic" || o.name !== "shell";
     });
-    const box = new THREE.Box3().setFromObject(lamp);
+    const box = new THREE.Box3().setFromObject(model);
     table.position.y = box.min.y - 0.05;
     glow.position.y = glowBack.position.y = 0.1;
-    scene.add(lamp);
+    scene.add(model);
     onReady?.();
   }, undefined, err => { if (!disposed) onError?.(err); });
 

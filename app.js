@@ -62,7 +62,7 @@ const CARLETON_LACROSSE_SITE = {
   }
 };
 
-const CARLETON_LACROSSE_GALLERY_IMAGE = "assets/Personal/carletonlacrosse.ca/hero-gallery.webp";
+const CARLETON_LACROSSE_GALLERY_IMAGE = "assets/Personal/carletonlacrosse.ca/HERO.webp";
 
 const PROJECTS = [
   {

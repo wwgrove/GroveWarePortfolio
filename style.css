@@ -555,6 +555,41 @@ body {
   gap: 1.75rem;
 }
 
+.drawer-intro[hidden] {
+  display: none;
+}
+
+.footwear-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.footwear-gallery-item {
+  overflow: hidden;
+  background: var(--artboard-white);
+  border: 1px solid var(--border-line);
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.footwear-gallery-item img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: var(--panel-gray);
+  border-radius: 4px;
+}
+
+.footwear-gallery-item figcaption {
+  padding: 0.6rem 0.2rem 0.1rem;
+  color: var(--ink-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 .project-hero-video video {
   display: block;
   width: 100%;

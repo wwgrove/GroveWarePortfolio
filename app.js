@@ -64,7 +64,50 @@ const CARLETON_LACROSSE_SITE = {
 
 const CARLETON_LACROSSE_GALLERY_IMAGE = "assets/Personal/carletonlacrosse.ca/HERO.webp";
 
+const FOOTWEAR_STYLES = [
+  ["Aster", 6],
+  ["Beacon", 4],
+  ["Cinder", 3],
+  ["Dapple", 4],
+  ["Ember", 4],
+  ["Fable", 7],
+  ["Grove", 5],
+  ["Harbor", 12],
+  ["Indigo", 4],
+  ["Juniper", 2],
+  ["Kestrel", 5],
+  ["Lantern", 8],
+  ["Morrow", 1],
+  ["Nimbus", 1],
+  ["Orbit", 3],
+  ["Pebble", 4],
+  ["Quartz", 1],
+  ["Raven", 1],
+  ["Solstice", 1],
+  ["Thistle", 1],
+  ["Umber", 5]
+];
+
+const FOOTWEAR_PROJECTS = FOOTWEAR_STYLES.map(([codename, imageCount]) => {
+  const slug = codename.toLowerCase();
+  const gallery = Array.from({ length: imageCount }, (_, index) =>
+    `assets/Footwear/${codename}/${slug}-${String(index + 1).padStart(2, "0")}.png`
+  );
+  return {
+    id: `footwear-${slug}`,
+    category: "footwear",
+    title: `Style ${codename}`,
+    subtitle: "Footwear style gallery",
+    specCode: "STYLE ARCHIVE",
+    summary: [],
+    boards: [],
+    thumb: gallery[0],
+    gallery
+  };
+});
+
 const PROJECTS = [
+  ...FOOTWEAR_PROJECTS,
   {
     id: "rrcrc-connection",
     category: "industrial-design",
@@ -342,11 +385,13 @@ function renderPage(pageKey) {
 }
 
 function openProject(project) {
+  const hasGallery = Array.isArray(project.gallery);
   modalCategory.textContent = project.tools ? `${project.specCode} // ${project.tools}` : project.specCode;
   modalTitle.textContent = project.title;
 
   const summaries = Array.isArray(project.summary) ? project.summary : [project.summary];
-  modalIntro.innerHTML = `
+  modalIntro.hidden = hasGallery;
+  modalIntro.innerHTML = hasGallery ? "" : `
     <div class="project-details">
       ${summaries.map(summary => `<p>${summary}</p>`).join("")}
     </div>
@@ -402,7 +447,17 @@ function openProject(project) {
       ${project.documents.map(doc => `<a class="doc-link" href="${encodeURI(doc.src)}" target="_blank" rel="noopener">${doc.label}</a>`).join("")}
     </div>` : "";
 
-  modalBoards.innerHTML = heroVideoHtml + modelHtml + demoHtml + featuresHtml + docsHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
+  const galleryHtml = hasGallery ? `
+    <div class="footwear-gallery" aria-label="${project.title} images">
+      ${project.gallery.map((imageSrc, index) => `
+        <figure class="footwear-gallery-item">
+          <img src="${imageSrc}" alt="${project.title}, image ${index + 1}" loading="lazy" decoding="async">
+          <figcaption>${project.title} / ${String(index + 1).padStart(2, "0")}</figcaption>
+        </figure>
+      `).join("")}
+    </div>` : "";
+
+  modalBoards.innerHTML = galleryHtml + heroVideoHtml + modelHtml + demoHtml + featuresHtml + docsHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
     <figure class="presentation-board">
       <img src="${boardSrc}" alt="${project.title} - Board ${index + 1}" loading="lazy" decoding="async">
     </figure>

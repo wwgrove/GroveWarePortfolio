@@ -141,6 +141,12 @@ const PROJECTS = [
       "Ikuyo is a compact, large-capacity stovetop steamer for beginner cooks. It collapses into a single nested unit for easy storage and expands into multi-tiered baskets for steaming a full meal. Co-moulded gaskets prevent steam leakage and temperature fluctuation, heat-safe silicone grips reduce the risk of burns, and smooth interior surfaces make cleanup fast."
     ],
     tools: "PCTG co-polyester baskets, 304 stainless steel pot and lid ring, tempered borosilicate glass lid, food-grade silicone grips and gaskets",
+    model: {
+      src: "assets/School/IKUYO/ikuyo.glb",
+      poster: "assets/School/IKUYO/ikuyo-board-1.webp",
+      label: "Interactive 3D Model",
+      finish: "ikuyo"
+    },
     boards: Array.from({ length: 8 }, (_, i) => `assets/School/IKUYO/ikuyo-board-${i + 1}.webp`),
     documents: [
       { label: "Presentation Boards (PDF)", src: "assets/School/IKUYO/IKUYOFINALBOARDS.pdf" }

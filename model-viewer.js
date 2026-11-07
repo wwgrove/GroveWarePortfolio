@@ -85,7 +85,7 @@ export function createModelViewer(host, { src, finish, onReady, onError }) {
   glow.position.set(0, 0.1, 0.9);
   const glowBack = glow.clone();
   glowBack.position.z = -0.9;
-  if (finish !== "orange-plastic") scene.add(glow, glowBack);
+  if (finish !== "orange-plastic" && finish !== "ikuyo") scene.add(glow, glowBack);
 
   const table = new THREE.Mesh(
     new THREE.CylinderGeometry(3.6, 3.6, 0.1, 96),
@@ -101,8 +101,29 @@ export function createModelViewer(host, { src, finish, onReady, onError }) {
   new GLTFLoader().load(src, gltf => {
     if (disposed) return;
     const model = gltf.scene;
+    const ikuyoMaterials = finish === "ikuyo" ? {
+      rubber: new THREE.MeshStandardMaterial({ color: 0xb45e20, roughness: 0.48 }),
+      steel: new THREE.MeshStandardMaterial({ color: 0xc3c6c5, metalness: 0.85, roughness: 0.28 }),
+      plastic: new THREE.MeshStandardMaterial({
+        color: 0xc8d0d0, roughness: 0.25, transparent: true, opacity: 0.3, depthWrite: false
+      }),
+      glass: new THREE.MeshStandardMaterial({
+        color: 0xe1e7e6, metalness: 0.1, roughness: 0.12, transparent: true, opacity: 0.22, depthWrite: false
+      })
+    } : null;
+    const replacedMaterials = new Set();
     model.traverse(o => {
       if (!o.isMesh) return;
+      if (ikuyoMaterials) {
+        replacedMaterials.add(o.material);
+        o.material = o.material.name === "matterubber" ? ikuyoMaterials.rubber
+          : o.material.name === "translucentplastic" ? ikuyoMaterials.plastic
+          : o.material.name === "clearglass" ? ikuyoMaterials.glass
+          : ikuyoMaterials.steel;
+        o.castShadow = !o.material.transparent;
+        o.receiveShadow = !o.material.transparent;
+        return;
+      }
       o.geometry.deleteAttribute("normal");
       o.geometry = toCreasedNormals(o.geometry, THREE.MathUtils.degToRad(35));
       o.material = finish === "orange-plastic"
@@ -111,10 +132,22 @@ export function createModelViewer(host, { src, finish, onReady, onError }) {
       o.castShadow = finish === "orange-plastic" || o.name !== "shell";
       o.receiveShadow = finish === "orange-plastic" || o.name !== "shell";
     });
-    const box = new THREE.Box3().setFromObject(model);
+    replacedMaterials.forEach(material => material.dispose());
+    let displayModel = model;
+    if (ikuyoMaterials) {
+      const bounds = new THREE.Box3().setFromObject(model);
+      const center = bounds.getCenter(new THREE.Vector3());
+      const size = bounds.getSize(new THREE.Vector3());
+      const scale = 2.4 / Math.max(size.x, size.y, size.z);
+      displayModel = new THREE.Group();
+      displayModel.add(model);
+      displayModel.scale.setScalar(scale);
+      displayModel.position.copy(center).multiplyScalar(-scale);
+    }
+    const box = new THREE.Box3().setFromObject(displayModel);
     table.position.y = box.min.y - 0.05;
     glow.position.y = glowBack.position.y = 0.1;
-    scene.add(model);
+    scene.add(displayModel);
     onReady?.();
   }, undefined, err => { if (!disposed) onError?.(err); });
 

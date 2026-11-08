@@ -626,6 +626,10 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .animated-model-stage {
+    min-height: 340px;
+  }
+
   .studio-nav {
     position: fixed;
     bottom: 1rem;
@@ -644,6 +648,42 @@ body {
   .nav-tab {
     padding: 0.5rem 0.6rem;
     font-size: 0.76rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .animated-model-stage {
+    aspect-ratio: 4 / 3;
+    min-height: 320px;
+  }
+
+  .worm-preview-heading {
+    top: 1rem;
+    left: 1rem;
+  }
+
+  .worm-preview-hint {
+    top: auto;
+    right: 1rem;
+    bottom: 1.85rem;
+    font-size: 0.65rem;
+  }
+
+  .worm-controls {
+    bottom: 0.65rem;
+  }
+
+  .worm-speed-control {
+    gap: 0.35rem;
+    padding: 0 0.45rem;
+  }
+
+  .worm-speed-control span {
+    display: none;
+  }
+
+  .worm-speed-control input {
+    width: 4.5rem;
   }
 }
 
@@ -1051,6 +1091,132 @@ body {
 }
 .model-hint { margin-top: 0.6rem; text-align: center; color: var(--ink-muted); font-size: 0.8rem; }
 .model-reset { background: transparent; cursor: pointer; font-family: inherit; }
+
+.worm-hero-model {
+  margin-bottom: 2rem;
+}
+
+.animated-model-stage {
+  aspect-ratio: 16 / 10;
+  min-height: 360px;
+  max-height: min(78vh, 760px);
+  background: #ebeae6;
+}
+
+.animated-model-stage .model-poster {
+  object-fit: contain;
+  filter: none;
+}
+
+.worm-preview-heading {
+  position: absolute;
+  z-index: 2;
+  top: 1.5rem;
+  left: 1.75rem;
+  pointer-events: none;
+}
+
+.worm-preview-heading h3 {
+  margin: 0;
+  color: var(--ink-black);
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+}
+
+.worm-preview-heading p {
+  margin: 0.4rem 0 0;
+  color: var(--ink-muted);
+  font-size: 0.75rem;
+}
+
+.worm-preview-hint {
+  position: absolute;
+  z-index: 2;
+  top: 1.8rem;
+  right: 1.75rem;
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.7rem;
+  pointer-events: none;
+}
+
+.worm-controls {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem;
+  transform: translateX(-50%);
+  border: 1px solid rgba(17, 17, 17, 0.12);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 8px 26px rgba(17, 17, 17, 0.12);
+  backdrop-filter: blur(12px);
+}
+
+.worm-controls button {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-charcoal);
+  font: inherit;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.worm-controls button:hover {
+  background: #eeeae4;
+  color: var(--ink-black);
+}
+
+.worm-controls .worm-play {
+  background: var(--ink-black);
+  color: #fff;
+}
+
+.worm-controls .worm-play:hover {
+  background: var(--ink-charcoal);
+  color: #fff;
+}
+
+.worm-speed-control {
+  display: flex;
+  height: 2.25rem;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 0.7rem;
+  border-right: 1px solid var(--border-line);
+  color: var(--ink-muted);
+  font-size: 0.7rem;
+}
+
+.worm-speed-control input {
+  width: 5.75rem;
+  accent-color: var(--ink-black);
+}
+
+.animated-model-stage:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  max-height: none;
+  aspect-ratio: auto;
+  border: 0;
+  border-radius: 0;
+}
+
+.animated-model-stage:fullscreen canvas {
+  width: 100%;
+  height: 100%;
+}
 
 .project-features {
   display: grid;

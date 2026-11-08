@@ -235,6 +235,11 @@ const PROJECTS = [
       poster: "assets/School/Worm at the Disco/worm-gallery.webp",
       title: "Worm at the Disco automaton in motion"
     },
+    animatedModel: {
+      src: "assets/School/Worm at the Disco/gizmo.glb",
+      poster: "assets/School/Worm at the Disco/worm-gallery.webp"
+    },
+    videoAfterBoards: true,
     boards: Array.from({ length: 2 }, (_, i) => `assets/School/Worm at the Disco/worm-board-${i + 1}.webp`),
     documents: [
       { label: "Presentation Boards (PDF)", src: "assets/School/Worm at the Disco/WormAtTheDiscoFinalBoards.pdf" }
@@ -446,6 +451,31 @@ function openProject(project) {
       <p class="model-hint">Drag to orbit · scroll or pinch to zoom</p>
     </div>` : "";
 
+  const animatedModelHtml = project.animatedModel ? `
+    <section class="model-viewer worm-hero-model" aria-label="Animated 3D preview">
+      <div class="flipbook-head">
+        <span class="step-badge">Animated 3D Preview</span>
+      </div>
+      <div class="model-stage animated-model-stage" role="group" aria-label="${project.title} animated 3D model">
+        <img class="model-poster" src="${project.animatedModel.poster}" alt="${project.title} model render">
+        <span class="model-status">Loading animated model…</span>
+        <div class="worm-preview-heading">
+          <h3>${project.title}</h3>
+          <p>Interactive mechanical study</p>
+        </div>
+        <p class="worm-preview-hint">Drag to rotate · Scroll to zoom</p>
+        <div class="worm-controls" aria-label="Animation controls">
+          <button type="button" class="worm-play" data-animation-toggle aria-label="Pause animation">Ⅱ</button>
+          <label class="worm-speed-control">
+            <span>Speed</span>
+            <input data-animation-speed type="range" min="0.4" max="1.8" step="0.1" value="1" aria-label="Animation speed">
+          </label>
+          <button type="button" data-animation-reset aria-label="Reset camera">↺</button>
+          <button type="button" data-animation-fullscreen aria-label="Enter fullscreen">⛶</button>
+        </div>
+      </div>
+    </section>` : "";
+
   const heroVideoHtml = project.heroVideo ? `
     <div class="project-hero-video">
       <video src="${project.heroVideo.src}" poster="${project.heroVideo.poster}" aria-label="${project.heroVideo.title}"
@@ -467,15 +497,21 @@ function openProject(project) {
       `).join("")}
     </div>` : "";
 
-  modalBoards.innerHTML = galleryHtml + heroVideoHtml + modelHtml + demoHtml + featuresHtml + docsHtml + (project.boards.length ? project.boards.map((boardSrc, index) => `
+  const boardsHtml = (project.boards.length ? project.boards.map((boardSrc, index) => `
     <figure class="presentation-board">
       <img src="${boardSrc}" alt="${project.title} - Board ${index + 1}" loading="lazy" decoding="async">
     </figure>
   `).join("") : "") + (project.books || []).map((_, i) => `<div data-book="${i}"></div>`).join("");
+  modalBoards.innerHTML = galleryHtml + animatedModelHtml +
+    (project.videoAfterBoards ? "" : heroVideoHtml) +
+    modelHtml + demoHtml + featuresHtml + docsHtml + boardsHtml +
+    (project.videoAfterBoards ? heroVideoHtml : "");
+  if (project.animatedModel) modalBoards.querySelector(".worm-hero-model").after(modalIntro);
 
   (project.books || []).forEach((book, i) => createFlipbook(modalBoards.querySelector(`[data-book="${i}"]`), book, project.title));
 
   if (project.model) mountModel(project.model);
+  if (project.animatedModel) mountAnimatedModel(project.animatedModel);
 
   modal.showModal();
   document.body.style.overflow = "hidden";
@@ -509,6 +545,45 @@ async function mountModel(model) {
     });
   } catch (err) {
     status.textContent = "3D preview unavailable";
+  }
+}
+
+async function mountAnimatedModel(model) {
+  const token = ++viewerToken;
+  const stage = modalBoards.querySelector(".animated-model-stage");
+  const status = stage.querySelector(".model-status");
+  const poster = stage.querySelector(".model-poster");
+  const toggle = stage.querySelector("[data-animation-toggle]");
+  const speed = stage.querySelector("[data-animation-speed]");
+  let playing = true;
+
+  toggle.addEventListener("click", () => {
+    playing = !playing;
+    activeViewer?.setPlaying(playing);
+    toggle.textContent = playing ? "Ⅱ" : "▶";
+    toggle.setAttribute("aria-label", playing ? "Pause animation" : "Play animation");
+  });
+  speed.addEventListener("input", () => activeViewer?.setSpeed(Number(speed.value)));
+  stage.querySelector("[data-animation-reset]").addEventListener("click", () => activeViewer?.reset());
+  stage.querySelector("[data-animation-fullscreen]").addEventListener("click", () => activeViewer?.requestFullscreen());
+
+  try {
+    const { createWormViewer } = await import("./worm-viewer.js");
+    if (token !== viewerToken) return;
+    activeViewer = createWormViewer(stage, {
+      src: model.src,
+      onReady: () => {
+        if (token !== viewerToken) return;
+        stage.classList.add("ready");
+        poster.remove();
+        status.remove();
+      },
+      onError: () => {
+        if (token === viewerToken) status.textContent = "3D preview unavailable";
+      }
+    });
+  } catch (err) {
+    if (token === viewerToken) status.textContent = "3D preview unavailable";
   }
 }
 
@@ -607,6 +682,7 @@ function closeProject() {
   closeFloatingVideo();
   disposeModel();
   if (modal.open) modal.close();
+  modalBoards.before(modalIntro);
   modalBoards.innerHTML = "";
   document.body.style.overflow = "";
 

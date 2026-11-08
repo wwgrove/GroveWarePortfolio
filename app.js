@@ -349,9 +349,17 @@ function renderPage(pageKey) {
       (activeSchoolFilter === "concepts" ? p.isConcept : !p.isConcept)));
 
   items.forEach(project => {
-    const card = document.createElement("article");
+    const card = document.createElement(project.inProgress ? "article" : "a");
     card.className = "artboard-card";
-    card.tabIndex = 0;
+    if (project.inProgress) {
+      card.tabIndex = 0;
+    } else {
+      const url = new URL(window.location.href);
+      url.search = "";
+      url.searchParams.set("project", project.id);
+      url.hash = "";
+      card.href = `${url.pathname}${url.search}`;
+    }
     card.innerHTML = `
       <div class="artboard-stage">
         <span class="corner-tag top-left">Will Wingrove</span>
@@ -379,18 +387,14 @@ function renderPage(pageKey) {
       return;
     }
 
-    card.addEventListener("click", () => openProject(project));
-    card.addEventListener("keydown", e => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        openProject(project);
-      }
-    });
     gridEl.appendChild(card);
   });
 }
 
+let activeProject = null;
+
 function openProject(project) {
+  activeProject = project;
   const hasGallery = Array.isArray(project.gallery);
   modalCategory.textContent = project.tools ? `${project.specCode} // ${project.tools}` : project.specCode;
   modalTitle.textContent = project.title;
@@ -602,9 +606,21 @@ function createFlipbook(host, book, projectTitle) {
 function closeProject() {
   closeFloatingVideo();
   disposeModel();
-  modal.close();
+  if (modal.open) modal.close();
   modalBoards.innerHTML = "";
   document.body.style.overflow = "";
+
+  const url = new URL(window.location.href);
+  if (url.searchParams.has("project")) {
+    const hashPage = url.hash.slice(1);
+    const pageKey = CATEGORIES[hashPage] ? hashPage : activeProject?.category || "home";
+    url.searchParams.delete("project");
+    url.hash = pageKey === "home" ? "" : pageKey;
+    history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    renderPage(pageKey);
+    document.title = "Will Wingrove — Industrial Design & Footwear CAD";
+  }
+  activeProject = null;
 }
 
 const FLOAT_MARGIN = 16;
@@ -779,6 +795,10 @@ schoolProjectTabs.querySelectorAll(".school-project-tab").forEach(tab => {
 
 window.addEventListener("hashchange", () => {
   const hash = window.location.hash.replace("#", "") || "home";
+  if (new URLSearchParams(window.location.search).has("project")) {
+    closeProject();
+    return;
+  }
   renderPage(hash);
 });
 
@@ -789,4 +809,12 @@ modal.addEventListener("click", e => {
 });
 
 const startHash = window.location.hash.replace("#", "") || "home";
-renderPage(startHash);
+const requestedProjectId = new URLSearchParams(window.location.search).get("project");
+const requestedProject = PROJECTS.find(project => project.id === requestedProjectId && !project.inProgress);
+if (requestedProject) {
+  renderPage("home");
+  document.title = `${requestedProject.title} — Will Wingrove`;
+  openProject(requestedProject);
+} else {
+  renderPage(startHash);
+}

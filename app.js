@@ -91,7 +91,7 @@ const FOOTWEAR_STYLES = [
 const FOOTWEAR_PROJECTS = FOOTWEAR_STYLES.map(([codename, imageCount]) => {
   const slug = codename.toLowerCase();
   const gallery = Array.from({ length: imageCount }, (_, index) =>
-    `assets/Footwear/${codename}/${slug}-${String(index + 1).padStart(2, "0")}.png`
+    `assets/Footwear/${codename}/${slug}-${String(index + 1).padStart(2, "0")}.webp`
   );
   return {
     id: `footwear-${slug}`,
@@ -114,7 +114,7 @@ const PROJECTS = [
     title: "RRCRC Connection",
     subtitle: "IDES3302B Projects IIB (STU) Winter 2026",
     specCode: "SCHOOL PROJECT",
-    thumb: "assets/School/RRCRC Connection/ThumbnailPictureRRCRC.png",
+    thumb: "assets/School/RRCRC Connection/ThumbnailPictureRRCRC.webp",
     summary: [
       "Field research at the Rideau-Rockcliffe Community Resource Centre (CRCRR) revealed that key facilities like the Multi-Use Theatre Hub (MUTH) were significantly underutilized due to low visibility, fragmented web navigation, and a high-friction booking process. Rather than building an isolated site for a single room, the project pivoted to a scalable, low-budget digital extension for the entire community center that lowers the barrier to entry and maximizes local engagement.",
       "CRCRR Connection serves as a centralized digital hub where residents can seamlessly discover spaces, join local groups, and register for community events. Featuring a persistent navigation menu and a unified directory, the platform replaces cumbersome, multi-channel registration steps with a single, intuitive interface tailored for an inclusive demographic—from older adults and newcomers to Canada to digital natives."
@@ -183,11 +183,11 @@ const PROJECTS = [
     title: "Torus",
     subtitle: "Ambient table lamp",
     specCode: "SCHOOL PROJECT",
-    thumb: "assets/School/Torus/RenderHero.png",
+    thumb: "assets/School/Torus/RenderHero.webp",
     summary: "Project details and presentation materials will be added here.",
     model: {
       src: "assets/School/Torus/torus.glb",
-      poster: "assets/School/Torus/RenderHero.png",
+      poster: "assets/School/Torus/RenderHero.webp",
       label: "Interactive 3D Model"
     },
     boards: [],

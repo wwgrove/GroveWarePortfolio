@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { createRenderLoop, disposeMaterials, disposeObject } from "./viewer-utils.js";
+import { createStudio } from "./viewer-studio.js";
 
 const JOINTS = {
   "ManHead-2": [0.0553, 0.0782, 0.0325],
@@ -144,7 +146,7 @@ function transformPointAroundPivot(point, pivot, angle, verticalLift) {
     .add(new THREE.Vector2(0, verticalLift));
 }
 
-function materialForPart(name) {
+function materialForPart(name, materials) {
   let color = "#b8b7b2";
   let metalness = 0.08;
   let roughness = 0.7;
@@ -163,7 +165,11 @@ function materialForPart(name) {
     roughness = 0.25;
   }
 
-  return new THREE.MeshStandardMaterial({ color, metalness, roughness, side: THREE.DoubleSide });
+  const key = `${color}:${metalness}:${roughness}`;
+  if (!materials.has(key)) {
+    materials.set(key, new THREE.MeshStandardMaterial({ color, metalness, roughness, side: THREE.DoubleSide }));
+  }
+  return materials.get(key);
 }
 
 export function createWormViewer(host, { src, onReady, onError }) {
@@ -171,14 +177,13 @@ export function createWormViewer(host, { src, onReady, onError }) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.9;
-  renderer.shadowMap.enabled = true;
+  renderer.toneMappingExposure = 1.1;
   host.appendChild(renderer.domElement);
 
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color("#ebeae6");
+  const studio = createStudio(renderer, { scale: 0.15, facing: -1, withTable: false, shadowSize: 512 });
+  const { scene } = studio;
   const camera = new THREE.PerspectiveCamera(32, 1, 0.01, 10);
-  camera.position.set(0.5, 0.3, -0.8);
+  camera.position.set(0.28, 0.18, -0.45);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -187,32 +192,21 @@ export function createWormViewer(host, { src, onReady, onError }) {
   controls.maxDistance = 1.2;
   controls.target.set(0, 0.045, 0.025);
 
-  scene.add(new THREE.HemisphereLight("#ffffff", "#77736d", 1.8));
-  const keyLight = new THREE.DirectionalLight("#ffffff", 2.4);
-  keyLight.position.set(0.4, 0.55, -0.45);
-  keyLight.castShadow = true;
-  scene.add(keyLight);
-  const fillLight = new THREE.DirectionalLight("#ffffff", 0.8);
-  fillLight.position.set(-0.3, 0.2, 0.3);
-  scene.add(fillLight);
-
   let disposed = false;
   let playing = true;
   let speed = 1;
   let phase = 0;
   let model = null;
   let wireMaterial = null;
-  let frameId;
   let resizeObserver;
-  let visibilityObserver;
-  let visible = true;
   const parts = new Map();
   const pivots = new Map();
   const wires = [];
   let discoPivot = null;
   const rotation = new THREE.Quaternion();
   const smoothLift = { front: 0, middle: 0, rear: 0 };
-  const clock = new THREE.Clock();
+  const loop = createRenderLoop(host, animate);
+  controls.addEventListener("change", loop.requestRender);
 
   function resize() {
     const width = host.clientWidth;
@@ -220,13 +214,19 @@ export function createWormViewer(host, { src, onReady, onError }) {
     if (!width || !height) return;
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
+    camera.fov = THREE.MathUtils.radToDeg(2 * Math.atan(
+      Math.tan(THREE.MathUtils.degToRad(16)) * Math.max(1, 1.4 / camera.aspect)
+    ));
     camera.updateProjectionMatrix();
+    loop.requestRender();
   }
 
-  function animate() {
-    frameId = requestAnimationFrame(animate);
-    if (disposed || !visible) return;
-    const delta = Math.min(clock.getDelta(), 0.05);
+  function animate(delta) {
+    if (!model) {
+      controls.update(delta);
+      renderer.render(scene, camera);
+      return false;
+    }
     if (playing) phase += delta * speed * 1.45;
     const t = phase;
     const frontTarget = camPinLift(WIRE_CONNECTIONS[0].camPin, WIRE_CONNECTIONS[0].camCenter, t * WIRE_CONNECTIONS[0].camSpeed);
@@ -288,18 +288,23 @@ export function createWormViewer(host, { src, onReady, onError }) {
       moveWireBetween(wire.mesh, bottom, top);
     });
 
-    controls.update();
+    const moving = controls.update(delta);
     renderer.render(scene, camera);
+    return playing || moving;
   }
 
   new GLTFLoader().load(src, gltf => {
-    if (disposed) return;
-    model = gltf.scene.clone(true);
+    if (disposed) {
+      disposeObject(gltf.scene);
+      return;
+    }
+    model = gltf.scene;
     model.position.set(0, -0.045, 0);
     model.rotation.y = -0.12;
     model.updateMatrixWorld(true);
     let assembly;
     const replacedMaterials = new Set();
+    const materials = new Map();
 
     model.traverse(object => {
       if (object instanceof THREE.Mesh) {
@@ -308,7 +313,7 @@ export function createWormViewer(host, { src, onReady, onError }) {
         (Array.isArray(object.material) ? object.material : [object.material]).forEach(material => {
           replacedMaterials.add(material);
         });
-        object.material = materialForPart(object.name);
+        object.material = materialForPart(object.name, materials);
       }
       const motion = ROTATING_PARTS[object.name];
       if (motion) {
@@ -321,10 +326,7 @@ export function createWormViewer(host, { src, onReady, onError }) {
         });
       }
     });
-    replacedMaterials.forEach(material => {
-      material.map?.dispose();
-      material.dispose();
-    });
+    disposeMaterials(replacedMaterials);
 
     assembly = model.getObjectByName("Assem1");
     if (assembly) {
@@ -376,6 +378,7 @@ export function createWormViewer(host, { src, onReady, onError }) {
 
     scene.add(model);
     resize();
+    loop.requestRender();
     onReady?.();
   }, undefined, error => {
     if (!disposed) onError?.(error);
@@ -383,33 +386,25 @@ export function createWormViewer(host, { src, onReady, onError }) {
 
   resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(host);
-  visibilityObserver = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; });
-  visibilityObserver.observe(host);
   resize();
-  animate();
 
   return {
-    setPlaying(value) { playing = value; },
+    setPlaying(value) { playing = value; loop.requestRender(); },
     setSpeed(value) { speed = value; },
     reset() {
-      camera.position.set(0.5, 0.3, -0.8);
+      camera.position.set(0.28, 0.18, -0.45);
       controls.target.set(0, 0.045, 0.025);
       controls.update();
+      loop.requestRender();
     },
     requestFullscreen() { host.requestFullscreen?.(); },
     dispose() {
       disposed = true;
-      cancelAnimationFrame(frameId);
+      loop.dispose();
       resizeObserver.disconnect();
-      visibilityObserver.disconnect();
       controls.dispose();
-      scene.traverse(object => {
-        if (!object.isMesh) return;
-        object.geometry.dispose();
-        if (Array.isArray(object.material)) object.material.forEach(material => material.dispose());
-        else object.material.dispose();
-      });
-      wireMaterial?.dispose();
+      disposeObject(scene);
+      studio.dispose();
       renderer.dispose();
       renderer.domElement.remove();
       parts.clear();

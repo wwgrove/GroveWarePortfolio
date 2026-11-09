@@ -2,7 +2,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
-import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { createRenderLoop, disposeMaterials, disposeObject } from "./viewer-utils.js";
+import { createStudio } from "./viewer-studio.js";
 
 const MATERIALS = {
   shell: () => new THREE.MeshStandardMaterial({
@@ -19,45 +20,17 @@ const MATERIALS = {
   plug: () => new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.4, metalness: 0.4 })
 };
 
-function woodTexture(renderer) {
-  const c = document.createElement("canvas");
-  c.width = 1024;
-  c.height = 1024;
-  const g = c.getContext("2d");
-  g.fillStyle = "#4a2c18";
-  g.fillRect(0, 0, 1024, 1024);
-  for (let i = 0; i < 520; i++) {
-    const x = Math.random() * 1024;
-    const w = 1 + Math.random() * 4;
-    const l = 140 + Math.random() * 600;
-    const y = Math.random() * 1024;
-    g.fillStyle = `rgba(${Math.random() < 0.5 ? "20,10,4" : "120,76,42"},${0.08 + Math.random() * 0.18})`;
-    g.fillRect(x, y, w, l);
-  }
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
-  return t;
-}
-
 export function createModelViewer(host, { src, finish, onReady, onError }) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.1;
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   host.appendChild(renderer.domElement);
 
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x2e2f31);
-  scene.fog = new THREE.Fog(0x2e2f31, 6, 16);
-
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.environmentIntensity = 0.18;
+  const studio = createStudio(renderer);
+  const { scene, table } = studio;
+  renderer.shadowMap.autoUpdate = false;
 
   const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 60);
   camera.position.set(-2.6, 1.3, 4.6);
@@ -73,33 +46,25 @@ export function createModelViewer(host, { src, finish, onReady, onError }) {
   controls.autoRotateSpeed = 0.8;
   controls.addEventListener("start", () => { controls.autoRotate = false; });
 
-  const key = new THREE.DirectionalLight(0xffe2c0, 1.1);
-  key.position.set(3, 5, 4);
-  key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048);
-  Object.assign(key.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 1, far: 14 });
-  key.shadow.bias = -0.0004;
-  scene.add(key, new THREE.HemisphereLight(0x8a93a8, 0x1a120c, 0.35));
-
   const glow = new THREE.PointLight(0xffa850, 3.2, 5, 1.6);
   glow.position.set(0, 0.1, 0.9);
   const glowBack = glow.clone();
   glowBack.position.z = -0.9;
   if (finish !== "orange-plastic" && finish !== "ikuyo") scene.add(glow, glowBack);
 
-  const table = new THREE.Mesh(
-    new THREE.CylinderGeometry(3.6, 3.6, 0.1, 96),
-    new THREE.MeshStandardMaterial({ map: woodTexture(renderer), roughness: 0.55, metalness: 0.05 })
-  );
-  table.material.map.repeat.set(2, 2);
-  table.receiveShadow = true;
-  scene.add(table);
-
   let disposed = false;
-  let visible = true;
+  const loop = createRenderLoop(host, delta => {
+    const moving = controls.update(delta);
+    renderer.render(scene, camera);
+    return controls.autoRotate || moving;
+  });
+  controls.addEventListener("change", loop.requestRender);
 
   new GLTFLoader().load(src, gltf => {
-    if (disposed) return;
+    if (disposed) {
+      disposeObject(gltf.scene);
+      return;
+    }
     const model = gltf.scene;
     const ikuyoMaterials = finish === "ikuyo" ? {
       rubber: new THREE.MeshStandardMaterial({ color: 0xb45e20, roughness: 0.48 }),
@@ -112,10 +77,11 @@ export function createModelViewer(host, { src, finish, onReady, onError }) {
       })
     } : null;
     const replacedMaterials = new Set();
+    const replacedGeometries = new Set();
     model.traverse(o => {
       if (!o.isMesh) return;
+      (Array.isArray(o.material) ? o.material : [o.material]).forEach(material => replacedMaterials.add(material));
       if (ikuyoMaterials) {
-        replacedMaterials.add(o.material);
         o.material = o.material.name === "matterubber" ? ikuyoMaterials.rubber
           : o.material.name === "translucentplastic" ? ikuyoMaterials.plastic
           : o.material.name === "clearglass" ? ikuyoMaterials.glass
@@ -124,6 +90,7 @@ export function createModelViewer(host, { src, finish, onReady, onError }) {
         o.receiveShadow = !o.material.transparent;
         return;
       }
+      replacedGeometries.add(o.geometry);
       o.geometry.deleteAttribute("normal");
       o.geometry = toCreasedNormals(o.geometry, THREE.MathUtils.degToRad(35));
       o.material = finish === "orange-plastic"
@@ -132,7 +99,8 @@ export function createModelViewer(host, { src, finish, onReady, onError }) {
       o.castShadow = finish === "orange-plastic" || o.name !== "shell";
       o.receiveShadow = finish === "orange-plastic" || o.name !== "shell";
     });
-    replacedMaterials.forEach(material => material.dispose());
+    replacedGeometries.forEach(geometry => geometry.dispose());
+    disposeMaterials(replacedMaterials);
     let displayModel = model;
     if (ikuyoMaterials) {
       const bounds = new THREE.Box3().setFromObject(model);
@@ -148,6 +116,8 @@ export function createModelViewer(host, { src, finish, onReady, onError }) {
     table.position.y = box.min.y - 0.05;
     glow.position.y = glowBack.position.y = 0.1;
     scene.add(displayModel);
+    renderer.shadowMap.needsUpdate = true;
+    loop.requestRender();
     onReady?.();
   }, undefined, err => { if (!disposed) onError?.(err); });
 
@@ -158,41 +128,29 @@ export function createModelViewer(host, { src, finish, onReady, onError }) {
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    loop.requestRender();
   }
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(host);
-  const visibilityObserver = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; });
-  visibilityObserver.observe(host);
   resize();
 
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduced) controls.autoRotate = false;
-
-  renderer.setAnimationLoop(() => {
-    if (!visible) return;
-    controls.update();
-    renderer.render(scene, camera);
-  });
 
   return {
     reset() {
       camera.position.set(-2.6, 1.3, 4.6);
       controls.target.set(0, -0.1, 0);
       controls.autoRotate = !reduced;
+      loop.requestRender();
     },
     dispose() {
       disposed = true;
-      renderer.setAnimationLoop(null);
+      loop.dispose();
       resizeObserver.disconnect();
-      visibilityObserver.disconnect();
       controls.dispose();
-      scene.traverse(o => {
-        if (!o.isMesh) return;
-        o.geometry.dispose();
-        o.material.map?.dispose();
-        o.material.dispose();
-      });
-      pmrem.dispose();
+      disposeObject(scene);
+      studio.dispose();
       renderer.dispose();
       renderer.domElement.remove();
     }

@@ -510,17 +510,27 @@ function openProject(project) {
 
   (project.books || []).forEach((book, i) => createFlipbook(modalBoards.querySelector(`[data-book="${i}"]`), book, project.title));
 
-  if (project.model) mountModel(project.model);
-  if (project.animatedModel) mountAnimatedModel(project.animatedModel);
-
   modal.showModal();
   document.body.style.overflow = "hidden";
   modal.scrollTop = 0;
+  if (project.model) mountWhenNear(modalBoards.querySelector(".model-stage"), () => mountModel(project.model));
+  if (project.animatedModel) mountWhenNear(modalBoards.querySelector(".animated-model-stage"), () => mountAnimatedModel(project.animatedModel));
   openFloatingVideo(project.video);
 }
 
 let activeViewer = null;
 let viewerToken = 0;
+let viewerObserver = null;
+
+function mountWhenNear(stage, mount) {
+  viewerObserver = new IntersectionObserver(entries => {
+    if (!entries[0].isIntersecting) return;
+    viewerObserver.disconnect();
+    viewerObserver = null;
+    mount();
+  }, { root: modal, rootMargin: "300px" });
+  viewerObserver.observe(stage);
+}
 
 async function mountModel(model) {
   const token = ++viewerToken;
@@ -541,10 +551,16 @@ async function mountModel(model) {
         reset.hidden = false;
         reset.addEventListener("click", () => activeViewer?.reset());
       },
-      onError: () => { status.textContent = "3D preview unavailable"; }
+      onError: err => {
+        console.error("Could not load 3D preview", err);
+        status.textContent = "3D preview unavailable";
+      }
     });
   } catch (err) {
-    status.textContent = "3D preview unavailable";
+    if (token === viewerToken) {
+      console.error("Could not initialize 3D preview", err);
+      status.textContent = "3D preview unavailable";
+    }
   }
 }
 
@@ -578,17 +594,27 @@ async function mountAnimatedModel(model) {
         poster.remove();
         status.remove();
       },
-      onError: () => {
-        if (token === viewerToken) status.textContent = "3D preview unavailable";
+      onError: err => {
+        if (token === viewerToken) {
+          console.error("Could not load animated 3D preview", err);
+          status.textContent = "3D preview unavailable";
+        }
       }
     });
+    activeViewer.setPlaying(playing);
+    activeViewer.setSpeed(Number(speed.value));
   } catch (err) {
-    if (token === viewerToken) status.textContent = "3D preview unavailable";
+    if (token === viewerToken) {
+      console.error("Could not initialize animated 3D preview", err);
+      status.textContent = "3D preview unavailable";
+    }
   }
 }
 
 function disposeModel() {
   viewerToken++;
+  viewerObserver?.disconnect();
+  viewerObserver = null;
   activeViewer?.dispose();
   activeViewer = null;
 }
@@ -705,6 +731,7 @@ const floatFrame = document.getElementById("floatingVideoFrame");
 const floatHandle = document.getElementById("floatingVideoHandle");
 let floatCorner = "bottom-left";
 let floatDrag = null;
+let floatSnapFrame = null;
 
 function floatBounds() {
   const width = floatEl.offsetWidth;
@@ -740,6 +767,8 @@ function openFloatingVideo(video) {
 }
 
 function closeFloatingVideo() {
+  if (floatSnapFrame !== null) cancelAnimationFrame(floatSnapFrame);
+  floatSnapFrame = null;
   floatEl.hidden = true;
   floatFrame.innerHTML = "";
 }
@@ -844,8 +873,15 @@ function endFloatResize(event) {
 floatEl.addEventListener("pointerup", endFloatResize);
 floatEl.addEventListener("pointercancel", endFloatResize);
 document.getElementById("closeFloatingVideo").addEventListener("click", closeFloatingVideo);
-modal.addEventListener("scroll", () => { if (!floatEl.hidden && !floatDrag && !floatSize) snapFloatingVideo(); }, { passive: true });
-window.addEventListener("resize", () => { if (!floatEl.hidden && !floatDrag && !floatSize) snapFloatingVideo(); });
+function scheduleFloatSnap() {
+  if (floatSnapFrame !== null || floatEl.hidden || floatDrag || floatSize) return;
+  floatSnapFrame = requestAnimationFrame(() => {
+    floatSnapFrame = null;
+    if (!floatEl.hidden && !floatDrag && !floatSize) snapFloatingVideo();
+  });
+}
+modal.addEventListener("scroll", scheduleFloatSnap, { passive: true });
+window.addEventListener("resize", scheduleFloatSnap);
 
 function renderLacrossePage() {
   lacrosseExperience.innerHTML = LACROSSE_EXPERIENCE.map(place => `<li>${place}</li>`).join("");
